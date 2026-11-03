@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>照片壓縮｜開發測試</title>
+<style>body{max-width:680px;margin:24px auto;padding:0 18px;font:16px/1.6 system-ui,sans-serif;color:#233047}section{background:#f8fafc;border:1px solid #d8e0eb;border-radius:14px;padding:18px;margin:16px 0}input,select,button{font:inherit;padding:10px;border-radius:8px;max-width:100%}button{background:#2563eb;color:white;border:0}button:disabled{background:#9ca3af}select,input{border:1px solid #a8b8cc}label{display:block;margin:9px 0}img{max-width:100%;max-height:320px;border-radius:10px}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#e9eef6;padding:12px;border-radius:9px}</style></head>
+<body>
+<h1>照片處理｜開發測試</h1>
+<p><strong>僅測試本機圖片壓縮。</strong> 不會上傳 Storage、不會修改關卡、不會建立過關紀錄。請使用非學生個資的測試照片。</p>
+<section>
+<h2>選擇測試照片</h2>
+<label>照片：<input id="photo" type="file" accept="image/*" capture="environment"></label>
+<button id="compress" type="button">壓縮並預覽</button>
+<pre id="message" role="status">尚未選擇照片</pre>
+<img id="preview" alt="壓縮後的照片預覽" hidden>
+</section>
+<section>
+<h2>Firebase 上傳（尚未開放）</h2>
+<p>正式上傳會先驗證組別與照片安全規則。這個開發頁面目前不會將任何照片送往雲端。</p>
+<button disabled>上傳至 Firebase（未啟用）</button>
+</section>
+<script type="module">
+import {compressPhoto} from "./photo-upload.js";
+const photo=document.getElementById("photo"),msg=document.getElementById("message"),preview=document.getElementById("preview"),button=document.getElementById("compress");
+let url=null;
+button.addEventListener("click",async()=>{
+  const file=photo.files?.[0];
+  if(!file){msg.textContent="請先選擇照片";return;}
+  button.disabled=true;
+  msg.textContent="照片壓縮中…";
+  try{
+    const blob=await compressPhoto(file);
+    if(url) URL.revokeObjectURL(url);
+    url=URL.createObjectURL(blob);
+    preview.src=url;preview.hidden=false;
+    msg.textContent=`壓縮成功！原始大小 ${(file.size/1024).toFixed(1)} KB，壓縮後 ${(blob.size/1024).toFixed(1)} KB。\n僅本機預覽，未上傳雲端、未過關。`;
+  }catch(e){msg.textContent="壓縮失敗："+e.message;}
+  finally{button.disabled=false;}
+});
+</script></body></html>
