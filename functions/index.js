@@ -5,9 +5,13 @@ import {getFirestore,FieldValue} from "firebase-admin/firestore";
 import {getStorage} from "firebase-admin/storage";
 import {createSubmissionHandler} from "./submission-handler.js";
 initializeApp();
+const emulatedProject = process.env.GCLOUD_PROJECT || process.env.GCP_PROJECT || "";
+const bucketName = process.env.FIREBASE_STORAGE_EMULATOR_HOST && emulatedProject.startsWith("demo-")
+  ? `${emulatedProject}.firebasestorage.app`
+  : "taipei-cultural-adventure.firebasestorage.app";
 const handler=createSubmissionHandler({
   db:getFirestore(),
-  bucket:getStorage().bucket("taipei-cultural-adventure.firebasestorage.app"),
+  bucket:getStorage().bucket(bucketName),
   serverTimestamp:()=>FieldValue.serverTimestamp(),
   makeError:(code,message)=>new HttpsError(code,message)
 });
