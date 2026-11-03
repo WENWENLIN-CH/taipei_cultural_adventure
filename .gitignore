@@ -1,0 +1,4 @@
+.firebase-preview/
+.firebase/
+node_modules/
+*.log
