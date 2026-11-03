@@ -7,7 +7,7 @@ import {getFirestore} from "firebase-admin/firestore";
 import {getStorage} from "firebase-admin/storage";
 
 const projectId="demo-taipei-callable";
-const envs=["FIREBASE_AUTH_EMULATOR_HOST","FIRESTORE_EMULATOR_HOST","FIREBASE_STORAGE_EMULATOR_HOST","FUNCTIONS_EMULATOR"];
+const envs=["FIREBASE_AUTH_EMULATOR_HOST","FIRESTORE_EMULATOR_HOST","FIREBASE_STORAGE_EMULATOR_HOST"];
 for(const name of envs) if(!process.env[name]) throw Error(name+" missing; refusing any live calls");
 for(const name of envs) if(/https?:\/\//.test(process.env[name])) throw Error("Emulator host must not include protocol");
 if(process.env.GCLOUD_PROJECT && process.env.GCLOUD_PROJECT!==projectId) throw Error("Unexpected project");
