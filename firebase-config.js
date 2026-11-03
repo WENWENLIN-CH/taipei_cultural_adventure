@@ -1,13 +1,13 @@
-// Firebase Web App configuration for the DEVELOPMENT branch only.
-// Copy the exact values from Firebase Console > Project settings > Your apps.
-// Firebase apiKey is a public client configuration identifier, NOT an admin key.
-// Do not place service-account credentials or passwords in this file.
+// Firebase Web App public client configuration (not an administrator credential).
+// Access to student data must be enforced by Authentication and Firestore/Storage rules.
 export const firebaseConfig = {
-  apiKey: "REPLACE_WITH_FIREBASE_WEB_API_KEY",
+  apiKey: "AIzaSyAG8sRScFRLR-pL_IoLLCUYpNQmupzyY1Y",
   authDomain: "taipei-cultural-adventure.firebaseapp.com",
   projectId: "taipei-cultural-adventure",
-  appId: "REPLACE_WITH_FIREBASE_WEB_APP_ID"
+  storageBucket: "taipei-cultural-adventure.firebasestorage.app",
+  messagingSenderId: "852979150342",
+  appId: "1:852979150342:web:51cec6b044727f65965d87",
+  measurementId: "G-PLR3BVE6HS"
 };
 export const firebaseConfigReady =
-  !firebaseConfig.apiKey.startsWith("REPLACE_WITH") &&
-  !firebaseConfig.appId.startsWith("REPLACE_WITH");
+  Boolean(firebaseConfig.apiKey && firebaseConfig.authDomain && firebaseConfig.projectId && firebaseConfig.appId);
