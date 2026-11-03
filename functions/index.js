@@ -17,8 +17,17 @@ const handler=createSubmissionHandler({
 });
 export const submitGroupMission=onCall({
   region:"asia-east1",maxInstances:2,memory:"256MiB",timeoutSeconds:60
-},request=>handler({
+},request=>{
+  // Production pilot is intentionally scoped to the existing demo group and
+  // one untouched mission. All original emulator suites remain unrestricted.
+  const pilotOnly = !process.env.FIRESTORE_EMULATOR_HOST;
+  if (pilotOnly && (request.data?.activityId!=="demo2026" ||
+      request.data?.groupId!=="group01" || Number(request.data?.missionId)!==3)) {
+    throw new HttpsError("permission-denied","目前只開放第一組第三關的受控測試");
+  }
+  return handler({
   uid:request.auth?.uid,
   anonymous:request.auth?.token.firebase?.sign_in_provider==="anonymous",
   data:request.data
-}));
+  });
+});
