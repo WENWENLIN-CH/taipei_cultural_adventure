@@ -16,7 +16,9 @@ for(const token of ['id="cloudInvite"','id="cloudDashboardStatus"','src="cloud-q
  assert.ok(html.includes(token),"Missing generated UI: "+token);
 }
 assert.ok(js.includes('const STORAGE_KEY = "taipeiCulturalQuestCloudPreviewV1";'));
-assert.ok(js.includes('window.cloudQuestCompleted?.(m.id)'),"Progress must be server-driven");
+assert.ok(js.includes('window.cloudQuestCompleted?.(m.id)'),"Passport must be server-driven");
+assert.ok(js.includes('const done = Boolean(window.cloudQuestCompleted?.(id));'),"Island pins must use Firestore, not local completion state");
+assert.ok(!js.includes('const done = !!state.missions?.[id]?.completed;'),"Island pins must never use local completion state");
 assert.ok(js.includes('document.getElementById("completeMissionBtn").disabled = true;'),"Submission button must stay disabled");
 assert.ok(!js.includes("    ms.completed = true;"),"Direct local completion write must not exist");
 assert.ok(js.includes("return doneCount()===5;"),"Only all five completed unlock final");
