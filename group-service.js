@@ -5,6 +5,7 @@ import {
   getFirestore, doc, getDoc, runTransaction, serverTimestamp, onSnapshot
 } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js";
 export const db = isConfigured ? getFirestore(auth.app) : null;
+const MEMBERSHIP_CACHE_KEY = "taipeiQuestGroupMembershipV1";
 const TOKEN_PATTERN = /^[a-f0-9]{48}$/i;
 const ID_PATTERN = /^[a-zA-Z0-9_-]{1,60}$/;
 function requireStudent() {
@@ -35,7 +36,9 @@ export async function joinByInvitation(rawToken) {
       joinedAt: serverTimestamp()
     });
   });
-  return {activityId: info.activityId, groupId: info.groupId, studentCode: info.studentCode};
+  const group = {activityId: info.activityId, groupId: info.groupId, studentCode: info.studentCode};
+  localStorage.setItem(MEMBERSHIP_CACHE_KEY, JSON.stringify({uid,...group}));
+  return group;
 }
 export function watchGroupMissions({activityId,groupId}, callback, onError) {
   requireStudent();
@@ -46,4 +49,20 @@ export function watchGroupMissions({activityId,groupId}, callback, onError) {
     onError
   ));
   return () => unsubs.forEach(unsub => unsub());
+}
+
+export async function resumeGroup() {
+  const uid=requireStudent();
+  let saved;
+  try {saved=JSON.parse(localStorage.getItem(MEMBERSHIP_CACHE_KEY));} catch {return null;}
+  if (!saved || saved.uid!==uid || !ID_PATTERN.test(saved.activityId ?? "") || !ID_PATTERN.test(saved.groupId ?? "")) return null;
+  const memberRef=doc(db,"activities",saved.activityId,"groups",saved.groupId,"members",uid);
+  try {
+    const snap=await getDoc(memberRef);
+    if(!snap.exists()) return null;
+    return {activityId:saved.activityId,groupId:saved.groupId,studentCode:snap.data().studentCode};
+  } catch {return null;}
+}
+export function clearLocalGroup() {
+  localStorage.removeItem(MEMBERSHIP_CACHE_KEY);
 }
