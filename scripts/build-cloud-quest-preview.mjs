@@ -30,7 +30,7 @@ html=once(html,'<button id="resetBtn" class="danger-link">重新開始本次任�
 js=once(js,'確定要清除本次所有任務進度與照片嗎？','確定清除這台手機的任務草稿與本機照片嗎？小組雲端進度不受影響。', "reset confirmation");
 await writeFile(join(output,"cloud-quest.html"),html);
 await writeFile(join(output,"cloud-quest.js"),js);
-for(const file of ["style.css","cloud-quest-bootstrap.js","firebase-auth.js","firebase-config.js","group-service.js","mission-cloud-flow.js","mission-form-adapter.js","photo-upload.js","mission-submission.js","mission-schema.js"]){
+for(const file of ["style.css","cloud-quest-bootstrap.js","firebase-auth.js","firebase-config.js","group-service.js","mission-cloud-flow.js","mission-form-adapter.js","photo-upload.js","photo-retry-policy.js","mission-submission.js","mission-schema.js"]){
   await copyFile(join(root,file),join(output,file));
 }
 console.log("Built isolated cloud-quest.html preview: shared Firestore progress, submissions disabled. Original index.html unchanged.");
