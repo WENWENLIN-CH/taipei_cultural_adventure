@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#17324D" />
+  <title>臺北異文化城市大冒險</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="app">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">TAIPEI CULTURAL QUEST</p>
+        <h1>臺北異文化城市大冒險</h1>
+      </div>
+      <button id="homeBtn" class="icon-btn hidden" aria-label="回到任務總覽">⌂</button>
+    </header>
+
+    <main>
+      <section id="startScreen" class="screen active">
+        <div class="hero-card">
+          <div class="hero-emoji">🌏</div>
+          <h2>準備好探索臺北了嗎？</h2>
+          <p>完成 5 個城市任務，蒐集文化線索，最後破解集合地點。</p>
+        </div>
+
+        <div class="panel">
+          <label>組別名稱
+            <input id="teamName" type="text" maxlength="20" placeholder="例如：第 3 組" />
+          </label>
+          <label>組員姓名（可選）
+            <input id="members" type="text" maxlength="80" placeholder="例如：小明、小華、小美" />
+          </label>
+          <button id="startBtn" class="primary-btn">開始冒險</button>
+        </div>
+      </section>
+
+      <section id="dashboardScreen" class="screen">
+        <div class="progress-card">
+          <div>
+            <p class="muted">目前進度</p>
+            <h2><span id="doneCount">0</span> / 5</h2>
+          </div>
+          <div class="progress-ring" id="progressRing"><span id="progressPercent">0%</span></div>
+        </div>
+
+        <div id="missionList" class="mission-list"></div>
+
+        <div id="finalLockCard" class="final-card locked">
+          <div class="lock-icon">🔒</div>
+          <div>
+            <h3>終極集合任務</h3>
+            <p id="finalLockText">完成全部 5 關後解鎖。</p>
+          </div>
+          <button id="finalMissionBtn" class="secondary-btn" disabled>尚未解鎖</button>
+          <button id="teacherHelpBtn" class="text-btn">帶隊老師協助</button>
+        </div>
+
+        <button id="resetBtn" class="danger-link">重新開始本次任務</button>
+      </section>
+
+      <section id="missionScreen" class="screen">
+        <button id="backToDashboard" class="back-btn">← 回任務總覽</button>
+        <div id="missionDetail"></div>
+      </section>
+
+      <section id="finalScreen" class="screen">
+        <button id="backFromFinal" class="back-btn">← 回任務總覽</button>
+        <div class="final-hero">
+          <div class="hero-emoji">🧩</div>
+          <p class="eyebrow">FINAL MISSION</p>
+          <h2>終極集合地點</h2>
+          <p>請依序破解兩層線索。</p>
+        </div>
+
+        <div class="panel">
+          <h3>第一層｜找到車站</h3>
+          <p class="riddle">第一個字：<strong>沒有角，也沒有邊的形狀。</strong></p>
+          <input id="riddle1" type="text" placeholder="輸入第一個字" autocomplete="off" />
+          <p class="riddle">第二個字：<strong>比丘陵更高，登上去可以看得更遠。</strong></p>
+          <input id="riddle2" type="text" placeholder="輸入第二個字" autocomplete="off" />
+          <button id="checkStationBtn" class="primary-btn">破解第一層</button>
+          <div id="stationResult" class="result-box hidden"></div>
+        </div>
+
+        <div id="exitPuzzle" class="panel hidden">
+          <h3>第二層｜找到正確出口</h3>
+          <blockquote>
+            最後的集合點，藏在一條<br>
+            <strong>以「酒」為名的道路旁，但這裡沒有酒可以喝。🍺</strong>
+          </blockquote>
+          <p>請打開地圖或查看捷運站出口資訊，找出這條道路名稱，以及正確出口。</p>
+
+          <label>道路名稱
+            <div class="inline-input">
+              <input id="streetAnswer" type="text" placeholder="例如：○○" />
+              <span>街</span>
+            </div>
+          </label>
+
+          <label>出口
+            <div class="inline-input">
+              <input id="exitAnswer" type="number" inputmode="numeric" min="1" max="9" placeholder="?" />
+              <span>號出口</span>
+            </div>
+          </label>
+
+          <button id="checkExitBtn" class="primary-btn">確認集合地點</button>
+          <div id="exitResult" class="result-box hidden"></div>
+        </div>
+      </section>
+    </main>
+
+    <dialog id="teacherDialog">
+      <form method="dialog" class="dialog-card" id="teacherForm">
+        <button class="dialog-close" value="cancel" aria-label="關閉">×</button>
+        <div class="hero-emoji">🧑‍🏫</div>
+        <h3>帶隊老師緊急解鎖</h3>
+        <p>若活動時間不足，可輸入老師密碼直接開啟終極任務。</p>
+        <input id="teacherPassword" type="password" inputmode="numeric" placeholder="輸入老師密碼" />
+        <p id="teacherError" class="error-text hidden">密碼錯誤，請再試一次。</p>
+        <button id="teacherUnlockBtn" type="button" class="primary-btn">解鎖終極任務</button>
+      </form>
+    </dialog>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
