@@ -4,7 +4,7 @@ const STORAGE_KEY = "taipeiCulturalQuestV1";
 
 const missions = [
   {
-    id: 1, emoji: "🌙", title: "城市中的伊斯蘭標誌",
+    id: 1, emoji: "🌙", title: "星月偵查員",
     short: "尋找星月標誌",
     intro: "在臺北市區尋找一個與伊斯蘭文化相關的「星月」標誌。",
     tip: "公共場所的祈禱室、穆斯林友善設施附近，可能會看見這個符號。",
@@ -14,7 +14,7 @@ const missions = [
     ]
   },
   {
-    id: 2, emoji: "🔤", title: "城市中的異國文字",
+    id: 2, emoji: "🔤", title: "異國文字解密",
     short: "找到 4 種非中文商店招牌",
     intro: "在臺北市區尋找至少 4 種中文以外的語言，且必須是商店招牌。",
     tip: "四張照片必須代表四種不同語言，例如英文、日文、韓文、泰文、越南文、印尼文等。",
@@ -26,7 +26,7 @@ const missions = [
     ]
   },
   {
-    id: 3, emoji: "🕌", title: "城市中的伊斯蘭餐廳",
+    id: 3, emoji: "🕌", title: "Halal大搜查",
     short: "尋找有清真認證的餐廳",
     intro: "找到一間具有 Halal／清真認證的餐廳。",
     tip: "賣印度料理、中東料理或沒有豬肉，不一定代表有清真認證。請找到真正的認證或 Halal 標示。",
@@ -37,7 +37,7 @@ const missions = [
     ]
   },
   {
-    id: 4, emoji: "🌍", title: "城市中的環遊世界",
+    id: 4, emoji: "🌍", title: "環遊世界美食家",
     short: "從五大洲中完成 3 洲",
     intro: "從亞洲、歐洲、非洲、美洲、大洋洲中，選擇 3 個不同洲，尋找代表不同國家料理的餐廳。",
     tip: "三間餐廳必須來自不同洲。",
@@ -48,7 +48,7 @@ const missions = [
     ]
   },
   {
-    id: 5, emoji: "🍬", title: "城市中的美味偵探家",
+    id: 5, emoji: "🍬", title: "揭秘南洋商店",
     short: "找到 3 個不同國家的零食",
     intro: "進入東南亞超市或販售異國食品的商店，尋找來自 3 個不同國家的零食或食品。",
     tip: "三樣商品必須來自不同國家，例如菲律賓、印尼、越南、泰國、馬來西亞等。",
@@ -106,27 +106,26 @@ function finalUnlocked(){
 function showDashboard(){
   showScreen("dashboardScreen");
   const count = doneCount();
-  document.getElementById("doneCount").textContent = count;
-  document.getElementById("progressPercent").textContent = `${count*20}%`;
-  document.getElementById("progressRing").style.background =
-    `conic-gradient(var(--accent2) ${count*72}deg,#e9e4db ${count*72}deg)`;
 
-  const list = document.getElementById("missionList");
-  list.innerHTML = "";
-  missions.forEach(m=>{
-    const done = !!state.missions?.[m.id]?.completed;
-    const card = document.createElement("button");
-    card.className = `mission-card ${done?"done":""}`;
-    card.innerHTML = `
-      <div class="mission-emoji">${m.emoji}</div>
-      <div style="text-align:left">
-        <h3>${m.id}. ${m.title}</h3>
-        <p>${m.short}</p>
-      </div>
-      <span class="status-pill">${done?"✓ 已完成":"前往"}</span>
-    `;
-    card.addEventListener("click",()=>openMission(m.id));
-    list.appendChild(card);
+  document.getElementById("doneCount").textContent = count;
+  const percent = document.getElementById("progressPercent");
+  if(percent) percent.textContent = `${count*20}%`;
+
+  const passport = document.getElementById("passportStamps");
+  if(passport){
+    passport.innerHTML = missions.map(m=>{
+      const done = !!state.missions?.[m.id]?.completed;
+      return `<span class="stamp ${done?"done":""}" title="${m.title}">${done?m.emoji:"❔"}</span>`;
+    }).join("");
+  }
+
+  document.querySelectorAll(".map-mission").forEach(btn=>{
+    const id = Number(btn.dataset.mission);
+    const done = !!state.missions?.[id]?.completed;
+    btn.classList.toggle("done", done);
+    const badge = btn.querySelector(".pin-state");
+    if(badge) badge.textContent = done ? "✓" : "?";
+    btn.onclick = ()=>openMission(id);
   });
 
   const unlocked = finalUnlocked();
@@ -134,12 +133,23 @@ function showDashboard(){
   const btn = document.getElementById("finalMissionBtn");
   card.classList.toggle("unlocked", unlocked);
   card.classList.toggle("locked", !unlocked);
-  document.querySelector("#finalLockCard .lock-icon").textContent = unlocked?"🔓":"🔒";
-  document.getElementById("finalLockText").textContent =
-    unlocked ? (state.teacherUnlocked && count<5 ? "已由帶隊老師協助解鎖。" : "五關完成，終極任務已解鎖！")
-             : "完成全部 5 關後解鎖。";
   btn.disabled = !unlocked;
-  btn.textContent = unlocked ? "進入終極任務" : "尚未解鎖";
+  btn.classList.toggle("unlocked", unlocked);
+
+  const lockIcon = btn.querySelector(".final-lock");
+  if(lockIcon) lockIcon.textContent = unlocked ? "🔓" : "🔒";
+
+  const temple = document.getElementById("finalTempleVisual");
+  if(temple) temple.classList.toggle("unlocked", unlocked);
+
+  const lockText = document.getElementById("finalLockText");
+  if(unlocked){
+    lockText.textContent = state.teacherUnlocked && count<5
+      ? "老師已啟動備援解鎖"
+      : "終極任務已解鎖！";
+  }else{
+    lockText.textContent = `還差 ${5-count} 關`;
+  }
 }
 document.getElementById("finalMissionBtn").addEventListener("click",()=>{
   if(finalUnlocked()) showScreen("finalScreen");
@@ -187,7 +197,7 @@ function openMission(id){
     }
     ms.completed = true;
     saveState();
-    alert("任務完成！✅");
+    alert("MISSION CLEAR！🎉\n文化印章已收入護照。");
     showDashboard();
   });
   showScreen("missionScreen");
