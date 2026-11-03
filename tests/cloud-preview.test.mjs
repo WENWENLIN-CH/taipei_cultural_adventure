@@ -11,6 +11,7 @@ assert.equal(hash("script.js"),originalJS,"Original mission script must not chan
 const html=read(".firebase-preview/cloud-quest.html");
 const js=read(".firebase-preview/cloud-quest.js");
 const boot=read(".firebase-preview/cloud-quest-bootstrap.js");
+const uploader=read(".firebase-preview/photo-upload.js");
 for(const token of ['id="cloudInvite"','id="cloudDashboardStatus"','src="cloud-quest.js"','src="cloud-quest-bootstrap.js"']){
  assert.ok(html.includes(token),"Missing generated UI: "+token);
 }
@@ -21,5 +22,9 @@ assert.ok(!js.includes("    ms.completed = true;"),"Direct local completion writ
 assert.ok(js.includes("return doneCount()===5;"),"Only all five completed unlock final");
 assert.ok(!js.includes("return doneCount()===5 || state.teacherUnlocked;"),"Teacher local password must not unlock cloud final");
 assert.ok(boot.includes("const SUBMISSIONS_ENABLED=false;"),"Preview must not accept submissions");
+assert.ok(boot.includes('badge.textContent=done?"✓":"?"'),"Island badges must follow Firestore completion");
+assert.ok(uploader.includes('metadata.customMetadata?.sha256!==digest'),"Retry must reject a different immutable photo");
+assert.ok(uploader.includes('customMetadata:{sha256:digest}'),"Upload must record digest for safe resume");
+assert.ok(uploader.includes('e.code!=="storage/object-not-found"'),"Upload must not blindly retry unauthorized reads");
 assert.ok(html.includes("清除本機草稿"),"Reset must be clearly local only");
 console.log("Cloud Taipei Island preview build checks passed. Original student website unchanged; submissions disabled.");
