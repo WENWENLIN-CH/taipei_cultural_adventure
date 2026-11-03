@@ -13,7 +13,7 @@ img{max-width:100%;max-height:300px;border-radius:9px}
 </style></head>
 <body>
 <h1>雲端照片上傳｜單張測試</h1>
-<p><strong>僅供 S01 的測試帳號使用。</strong> 這個測試會真正把一張照片上傳至 Firebase Storage；不會修改 Firestore 闖關成果，也不會判定過關。請使用不包含學生個資的測試照片。</p>
+<p><strong>僅供第一組 S01 或 S02 測試帳號使用。</strong> 這個測試會真正把一張照片上傳至 Firebase Storage；不會修改 Firestore 闖關成果，也不會判定過關。請使用不包含學生個資的測試照片。</p>
 <section><h2>1. 確認登入與小組</h2><pre id="identity">確認登入中…</pre><button id="login">學生匿名登入</button></section>
 <section><h2>2. 選照片並壓縮</h2>
 <p>固定測試位置：demo2026／group01／第2關／lang1_photo。每個 UID 的這個欄位只能建立一次，不會覆蓋。</p>
@@ -22,7 +22,7 @@ img{max-width:100%;max-height:300px;border-radius:9px}
 <pre id="compression">尚未選擇照片</pre><img id="preview" hidden alt="照片預覽">
 </section>
 <section><h2>3. 上傳測試</h2>
-<p>此按鈕只有登入 S01、完成壓縮後才可按；部署 Storage 安全規則之前請勿進行。</p>
+<p>此按鈕只有第一組 S01 或 S02 登入、完成壓縮後才可按；測試只會上傳照片，不會自動過關。</p>
 <button id="upload" disabled>上傳一張測試照片</button>
 <pre id="result">尚未上傳</pre>
 </section>
@@ -32,7 +32,7 @@ import {resumeGroup} from "./group-service.js";
 import {compressPhoto,uploadGroupPhoto} from "./photo-upload.js";
 const el=id=>document.getElementById(id);
 let blob=null,group=null,url=null;
-const refresh=()=>{el("upload").disabled=!(blob&&group?.activityId==="demo2026"&&group?.groupId==="group01"&&group?.studentCode==="S01");};
+const refresh=()=>{el("upload").disabled=!(blob&&group?.activityId==="demo2026"&&group?.groupId==="group01"&&["S01","S02"].includes(group?.studentCode));};
 watchAuth(async user=>{
   group=null;blob=null;refresh();
   if(!user?.isAnonymous){el("identity").textContent="尚未使用學生匿名帳號登入";return;}
