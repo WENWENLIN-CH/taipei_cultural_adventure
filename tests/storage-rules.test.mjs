@@ -10,8 +10,8 @@ const env=await initializeTestEnvironment({
   storage:{host:"127.0.0.1",port:9199,rules:readFileSync("storage.rules","utf8")}
 });
 const bucket=`gs://${projectId}.firebasestorage.app`;
-const path=(group,uid,name="photo1.jpg")=>
-  `activities/demo2026/groups/${group}/missions/1/${uid}/${name}`;
+const path=(group,uid,name="photo1.jpg",mission="1")=>
+  `activities/demo2026/groups/${group}/missions/${mission}/${uid}/${name}`;
 const alice=env.authenticatedContext("alice");
 const bob=env.authenticatedContext("bob");
 const outsider=env.authenticatedContext("outsider");
@@ -39,13 +39,15 @@ try {
   await check("未登入者不可查看照片",()=>assertFails(getMetadata(ref(anonymous.storage(bucket),path("group01","alice")))));
   await check("教師可查看照片",()=>assertSucceeds(getMetadata(ref(teacher.storage(bucket),path("group01","alice")))));
   await check("不可覆蓋已上傳照片",()=>assertFails(uploadBytes(aliceRef,image,metadata)));
+  await check("不可用隨機檔名繞過每欄位限制",()=>assertFails(uploadBytes(
+    ref(alice.storage(bucket),path("group01","alice","photo1-"+("a".repeat(32))+".jpg")),image,metadata)));
   await check("不可刪除照片",()=>assertFails(deleteObject(aliceRef)));
   await check("不可列出整個資料夾",()=>assertFails(listAll(ref(alice.storage(bucket),"activities/demo2026/groups/group01/missions/1/alice"))));
   await check("不可冒充別人 UID 上傳",()=>assertFails(uploadBytes(ref(alice.storage(bucket),path("group01","bob","photo1.jpg")),image,metadata)));
   await check("不屬於該組者不能上傳",()=>assertFails(uploadBytes(ref(bob.storage(bucket),path("group01","bob","photo1.jpg")),image,metadata)));
-  await check("不接受非 JPEG MIME",()=>assertFails(uploadBytes(ref(alice.storage(bucket),path("group01","alice","photo2.jpg")),image,{contentType:"image/png"})));
+  await check("不接受非 JPEG MIME",()=>assertFails(uploadBytes(ref(alice.storage(bucket),path("group01","alice","photo2.jpg","3")),image,{contentType:"image/png"})));
   await check("不接受錯誤照片欄位名稱",()=>assertFails(uploadBytes(ref(alice.storage(bucket),path("group01","alice","wrong.jpg")),image,metadata)));
-  await check("不接受超過 1MB 的檔案",()=>assertFails(uploadBytes(ref(alice.storage(bucket),path("group01","alice","photo2.jpg")),new Uint8Array(1024*1024+1),metadata)));
+  await check("不接受超過 1MB 的檔案",()=>assertFails(uploadBytes(ref(alice.storage(bucket),path("group01","alice","photo2.jpg","3")),new Uint8Array(1024*1024+1),metadata)));
   await check("未登入者不可上傳",()=>assertFails(uploadBytes(ref(anonymous.storage(bucket),path("group01","anon","photo1.jpg")),image,metadata)));
   console.log(`All ${count} Storage rules checks passed (emulators only).`);
 } finally {
