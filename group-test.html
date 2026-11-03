@@ -17,23 +17,33 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#eef2f7;padding:12px;
 <section><h2>3. 五關進度（唯讀）</h2><pre id="missions">尚未加入小組</pre></section>
 <script type="module">
 import {watchAuth,studentSignIn,logout} from "./firebase-auth.js";
-import {joinByInvitation,watchGroupMissions} from "./group-service.js";
+import {joinByInvitation,watchGroupMissions,resumeGroup,clearLocalGroup} from "./group-service.js";
 const $ = id => document.getElementById(id);
 let unsub=()=>{};
-watchAuth(user=>{$("identity").textContent=user? `UID: ${user.uid}\n類型: ${user.isAnonymous?"匿名":"非匿名"}`:"尚未登入";});
+watchAuth(async user=>{
+  $("identity").textContent=user? `UID: ${user.uid}\n類型: ${user.isAnonymous?"匿名":"非匿名"}`:"尚未登入";
+  if(user?.isAnonymous) {
+    const group=await resumeGroup();
+    if(group) displayGroup(group);
+  }
+});
+function displayGroup(group){
+  unsub();
+  $("result").textContent=`目前小組：${group.activityId}／${group.groupId}\n學生代碼：${group.studentCode}`;
+  const data={};
+  unsub=watchGroupMissions(group,(id,value)=>{
+    data[id]=value?.status==="completed"?"已完成":"尚未完成";
+    $("missions").textContent=[1,2,3,4,5].map(i=>`第${i}關：${data[i]||"同步中"}`).join("\n");
+  },e=>$("missions").textContent="同步失敗："+e.message);
+}
 $("signin").onclick=async()=>{try{await studentSignIn()}catch(e){$("identity").textContent=e.message}};
-$("signout").onclick=async()=>{unsub();await logout();$("result").textContent="已登出";$("missions").textContent="尚未加入小組"};
+$("signout").onclick=async()=>{unsub();clearLocalGroup();await logout();$("result").textContent="已登出";$("missions").textContent="尚未加入小組"};
 $("join").onclick=async()=>{
   $("join").disabled=true; unsub();
   try{
     const group=await joinByInvitation($("code").value);
     $("code").value="";
-    $("result").textContent=`已加入 ${group.activityId}／${group.groupId}\n學生代碼：${group.studentCode}`;
-    const data={};
-    unsub=watchGroupMissions(group,(id,value)=>{
-      data[id]=value?.status==="completed"?"已完成":"尚未完成";
-      $("missions").textContent=[1,2,3,4,5].map(i=>`第${i}關：${data[i]||"同步中"}`).join("\n");
-    },e=>$("missions").textContent="同步失敗："+e.message);
+    displayGroup(group);
   }catch(e){$("result").textContent="加入失敗："+e.message}
   finally{$("join").disabled=false}
 };
