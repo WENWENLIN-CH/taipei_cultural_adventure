@@ -46,7 +46,7 @@ try {
   await check("成員不可查看別組關卡",()=>assertFails(getDoc(doc(bob,groupA+"/missions/1"))));
   await check("教師可查看兩組關卡",async()=>{
     await assertSucceeds(getDoc(doc(teacher,groupA+"/missions/1")));
-    await assertSucceeds(getDoc(teacher,groupB+"/missions/1"));
+    await assertSucceeds(getDoc(doc(teacher,groupB+"/missions/1")));
   });
   await check("學生不可自行建立教師權限",()=>assertFails(setDoc(doc(alice,"teacherAccess/alice"),{authorized:true})));
   await check("學生不能偽造完成關卡",()=>assertFails(setDoc(doc(alice,groupA+"/missions/2"),{status:"completed"})));
