@@ -116,3 +116,41 @@ dialog::backdrop{background:rgba(15,24,33,.52);backdrop-filter:blur(3px)}
   main{padding-top:26px}
   .photo-grid.two{grid-template-columns:1fr 1fr}
 }
+
+
+/* ===== V2 台北島遊戲介面 ===== */
+body{background:#eef9fc}
+.rule-chip{display:inline-block;margin-top:8px;padding:8px 12px;border-radius:999px;background:#fff1d1;color:#755a1f;font-size:.82rem;font-weight:800}
+.adventure-btn{background:linear-gradient(135deg,#ff9f68,#ffbd69);color:#49331d}
+.quest-status{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;margin-bottom:12px;background:#fffdf8;border-radius:22px;box-shadow:0 12px 28px rgba(42,94,116,.13)}
+.passport-stamps{display:flex;gap:7px;flex-wrap:wrap}
+.stamp{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;border:2px dashed #b9c7ce;background:#f2f5f6;filter:grayscale(1);opacity:.55}
+.stamp.done{filter:none;opacity:1;background:#fff5cf;border-color:#e9af45;transform:rotate(-4deg)}
+.quest-count{display:flex;align-items:baseline;gap:4px;white-space:nowrap}
+.quest-count strong{font-size:2rem}.quest-count span{color:#6f8290;font-weight:900}
+.island-frame{position:relative;overflow:hidden;border-radius:28px;background:linear-gradient(#d7f3fb 0%,#b5e8f8 52%,#94d9f0 100%);box-shadow:0 12px 28px rgba(42,94,116,.13);padding:12px 7px 18px}
+.island-title{position:relative;z-index:4;text-align:center;color:#28556d}
+.island-title strong{display:block;font-size:.92rem;letter-spacing:.08em}
+.island-title small{display:block;margin-top:3px;font-size:.74rem;color:#5d8aa0}
+.cloud{position:absolute;z-index:1;font-size:1.8rem;opacity:.72;pointer-events:none}.cloud-a{left:4%;top:8%}.cloud-b{right:5%;top:17%;font-size:1.45rem}
+.island-map{position:relative;width:100%;aspect-ratio:520/760;max-height:720px;margin:0 auto}
+.island-svg{width:100%;height:100%;display:block}
+.wave{fill:none;stroke:#fff;stroke-width:5;stroke-linecap:round;opacity:.63}.wave-2{opacity:.42}
+.island-shadow{fill:#67aeca;opacity:.3}.island-sand{fill:#f6dda0}.island-grass{fill:url(#grassGradient)}
+.trail{fill:none;stroke:#f8efcf;stroke-width:14;stroke-linecap:round;stroke-dasharray:3 5;opacity:.93}
+.decor text{font-size:27px}
+.temple-glow{fill:#edf0f1;opacity:.76}.temple-icon{font-size:30px}.temple-label{font-size:13px;font-weight:900;fill:#6a7f89;letter-spacing:.08em}
+.final-temple.unlocked .temple-glow{fill:#ffe478;opacity:.94}
+.map-mission{position:absolute;z-index:8;border:0;background:transparent;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:88px;padding:0;touch-action:manipulation}
+.pin-emoji{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;font-size:1.7rem;background:#fffaf0;border:4px solid #fff;box-shadow:0 7px 16px rgba(39,82,102,.18);transition:transform .18s ease,background .18s ease}
+.pin-label{max-width:120px;padding:5px 8px;border-radius:999px;background:rgba(255,253,248,.96);color:#24465d;font-size:.7rem;font-weight:900;line-height:1.15;box-shadow:0 4px 10px rgba(40,89,111,.10);white-space:nowrap}
+.pin-state{position:absolute;right:5px;top:-5px;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:#8197a2;color:white;border:2px solid white;font-size:.7rem;font-weight:1000}
+.map-mission.done .pin-emoji{background:#fff4b8;border-color:#ffd66e;transform:scale(1.06)}.map-mission.done .pin-state{background:#4c9b74}.map-mission.done .pin-label{color:#2b6c52}
+.mission-1{left:30%;top:13%}.mission-2{right:7%;top:30%}.mission-3{left:6%;top:43%}.mission-4{right:7%;top:55%}.mission-5{left:27%;bottom:9%}
+.final-map-btn{position:absolute;z-index:9;left:55%;top:51%;transform:translate(-50%,-50%);width:136px;padding:9px 8px;border:0;border-radius:20px;background:rgba(247,250,251,.95);color:#6f828c;box-shadow:0 7px 16px rgba(40,89,111,.15);font-size:.82rem;font-weight:1000;display:flex;flex-direction:column;align-items:center}
+.final-map-btn .final-lock{font-size:1.65rem}.final-map-btn small{font-size:.64rem;font-weight:800;margin-top:3px;line-height:1.2}.final-map-btn:disabled{cursor:not-allowed}
+.final-map-btn.unlocked{color:#684c0c;background:#fff4bd;animation:finalPulse 1.8s ease-in-out infinite}
+@keyframes finalPulse{0%,100%{box-shadow:0 7px 16px rgba(40,89,111,.15)}50%{box-shadow:0 0 0 8px rgba(255,214,110,.28),0 7px 16px rgba(40,89,111,.15)}}
+.teacher-strip{margin-top:12px;padding:13px 14px;border-radius:18px;background:#f8fcfd;border:1px solid #d8e8ed;display:flex;align-items:center;justify-content:space-between;gap:10px;color:#6f8290;font-size:.8rem}
+@media (prefers-reduced-motion:reduce){.final-map-btn.unlocked{animation:none}}
+@media (max-width:390px){main{padding-left:10px;padding-right:10px}.island-frame{padding-left:2px;padding-right:2px}.map-mission{min-width:72px}.pin-emoji{width:48px;height:48px;font-size:1.45rem}.pin-label{font-size:.61rem;padding:4px 6px}.pin-state{right:1px}.final-map-btn{width:118px;font-size:.72rem}.stamp{width:34px;height:34px}.quest-status{padding:12px}.teacher-strip{align-items:flex-start;flex-direction:column}}
