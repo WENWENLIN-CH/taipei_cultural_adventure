@@ -25,8 +25,8 @@ assert.ok(js.includes("return doneCount()===5;"),"Only all five completed unlock
 assert.ok(!js.includes("return doneCount()===5 || state.teacherUnlocked;"),"Teacher local password must not unlock cloud final");
 assert.ok(boot.includes("const SUBMISSIONS_ENABLED=false;"),"Preview must not accept submissions");
 assert.ok(boot.includes('badge.textContent=done?"✓":"?"'),"Island badges must follow Firestore completion");
-assert.ok(uploader.includes('metadata.customMetadata?.sha256!==digest'),"Retry must reject a different immutable photo");
+assert.ok(uploader.includes("evaluateExistingPhoto(metadata,{sha256:digest,bytes:blob.size})"),"Retry must verify exact existing photo metadata");
 assert.ok(uploader.includes('customMetadata:{sha256:digest}'),"Upload must record digest for safe resume");
-assert.ok(uploader.includes('e.code!=="storage/object-not-found"'),"Upload must not blindly retry unauthorized reads");
+assert.ok(uploader.includes("shouldUploadAfterReadError(e)"),"Upload must not blindly retry unauthorized reads");
 assert.ok(html.includes("清除本機草稿"),"Reset must be clearly local only");
 console.log("Cloud Taipei Island preview build checks passed. Original student website unchanged; submissions disabled.");
