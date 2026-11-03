@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>小組加入測試（開發版）</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:650px;margin:30px auto;padding:0 18px;line-height:1.6}
+section{background:#f8fafc;border:1px solid #d4deec;border-radius:14px;padding:17px;margin:15px 0}
+button,input{font:inherit;padding:11px;border-radius:8px}
+input{width:92%;border:1px solid #aebed1}
+button{background:#2563eb;color:white;border:0;margin:8px 6px 8px 0}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#eef2f7;padding:12px;border-radius:8px}
+</style></head>
+<body><h1>小組加入｜開發測試</h1>
+<p>僅供測試，現在尚未開放任何真實學生資料；必須先完成安全規則測試及教師建立邀請碼。</p>
+<section><h2>1. 學生匿名登入</h2><button id="signin">匿名登入</button><button id="signout">登出</button><pre id="identity">檢查登入中…</pre></section>
+<section><h2>2. 使用專屬加入碼</h2><input id="code" placeholder="輸入老師發放的 48 位專屬加入碼" autocomplete="off"><button id="join">加入小組</button><pre id="result">尚未加入</pre></section>
+<section><h2>3. 五關進度（唯讀）</h2><pre id="missions">尚未加入小組</pre></section>
+<script type="module">
+import {watchAuth,studentSignIn,logout} from "./firebase-auth.js";
+import {joinByInvitation,watchGroupMissions} from "./group-service.js";
+const $ = id => document.getElementById(id);
+let unsub=()=>{};
+watchAuth(user=>{$("identity").textContent=user? `UID: ${user.uid}\n類型: ${user.isAnonymous?"匿名":"非匿名"}`:"尚未登入";});
+$("signin").onclick=async()=>{try{await studentSignIn()}catch(e){$("identity").textContent=e.message}};
+$("signout").onclick=async()=>{unsub();await logout();$("result").textContent="已登出";$("missions").textContent="尚未加入小組"};
+$("join").onclick=async()=>{
+  $("join").disabled=true; unsub();
+  try{
+    const group=await joinByInvitation($("code").value);
+    $("code").value="";
+    $("result").textContent=`已加入 ${group.activityId}／${group.groupId}\n學生代碼：${group.studentCode}`;
+    const data={};
+    unsub=watchGroupMissions(group,(id,value)=>{
+      data[id]=value?.status==="completed"?"已完成":"尚未完成";
+      $("missions").textContent=[1,2,3,4,5].map(i=>`第${i}關：${data[i]||"同步中"}`).join("\n");
+    },e=>$("missions").textContent="同步失敗："+e.message);
+  }catch(e){$("result").textContent="加入失敗："+e.message}
+  finally{$("join").disabled=false}
+};
+</script></body></html>
