@@ -26,7 +26,8 @@ js=once(js,'    ms.completed = true;\n    saveState();\n    alert("MISSION CLEAR
 js=once(js,'  showScreen("missionScreen");','  document.getElementById("completeMissionBtn").disabled = true;\n  showScreen("missionScreen");',"disable submissions");
 js=once(js,'init();','// Preserve local answer drafts but never trust cached local completions.\nstate.started = false;\nstate.teacherUnlocked = false;\nwindow.cloudQuestActivate = function(g){\n  state.started=true;state.teamName=g.groupId;state.members="";\n  state.teacherUnlocked=false;showDashboard();\n};\ninit();',"boot activation");
 html=once(html,'<button id="resetBtn" class="danger-link">重新開始本次任務</button>','<button id="resetBtn" class="danger-link">清除本機草稿（不影響小組雲端進度）</button>',"reset button label");
-js=once(js,'確定要清除本次所有任務進度與照片嗎？','確定清除這台手機的任務草稿與本機照片嗎？小組雲端進度不受影響。', "reset confirmation");\nawait writeFile(join(output,"cloud-quest.html"),html);
+js=once(js,'確定要清除本次所有任務進度與照片嗎？','確定清除這台手機的任務草稿與本機照片嗎？小組雲端進度不受影響。', "reset confirmation");
+await writeFile(join(output,"cloud-quest.html"),html);
 await writeFile(join(output,"cloud-quest.js"),js);
 for(const file of ["style.css","cloud-quest-bootstrap.js","firebase-auth.js","firebase-config.js","group-service.js","mission-cloud-flow.js","mission-form-adapter.js","photo-upload.js","mission-submission.js","mission-schema.js"]){
   await copyFile(join(root,file),join(output,file));
