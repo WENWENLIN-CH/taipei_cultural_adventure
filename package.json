@@ -6,7 +6,8 @@
     "test:rules": "firebase emulators:exec --project demo-taipei-quest --config firebase.emulator.json --only firestore \"node tests/firestore-rules.test.mjs\"",
     "test:missions": "node tests/mission-schema.test.mjs",
     "test:storage": "firebase emulators:exec --project demo-taipei-storage --config firebase.storage-emulator.json --only firestore,storage \"node tests/storage-rules.test.mjs\"",
-    "test:submission-emulator": "firebase emulators:exec --project demo-taipei-submission --config firebase.emulator.json --only firestore \"npm --prefix functions run test:integration\""
+    "test:submission-emulator": "firebase emulators:exec --project demo-taipei-submission --config firebase.emulator.json --only firestore \"npm --prefix functions run test:integration\"",
+    "test:submission-real-storage": "firebase emulators:exec --project demo-taipei-storage-submit --config firebase.storage-emulator.json --only firestore,storage \"npm --prefix functions run test:real-storage\""
   },
   "devDependencies": {
     "@firebase/rules-unit-testing": "^5.0.0",
