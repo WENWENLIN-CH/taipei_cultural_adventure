@@ -1,6 +1,7 @@
 // Photo preprocessing and upload foundation, development branch.
 // Upload does not complete a mission. Do not enable live uploads until rules,
-// quotas and server-side verification of photo existence are ready.
+// group submission authorization and server-side photo verification are ready.
+// A student can upload only once per photo slot under their own UID.
 import { auth } from "./firebase-auth.js";
 import { resumeGroup } from "./group-service.js";
 import { getStorage, ref, uploadBytes, getMetadata } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-storage.js";
@@ -33,13 +34,12 @@ export async function compressPhoto(file) {
     bitmap.close();
   }
 }
-export function storagePhotoPath({activityId,groupId,missionId,uid,photoKey,nonce}) {
+export function storagePhotoPath({activityId,groupId,missionId,uid,photoKey}) {
   if(![activityId,groupId,uid].every(s=>typeof s==="string"&&ID_PATTERN.test(s)))
     throw new Error("活動或組別身分不正確");
   const keys=REQUIRED_PHOTO_KEYS[Number(missionId)];
   if(!keys?.includes(photoKey)) throw new Error("不符合該關的照片欄位");
-  if(!/^[a-f0-9]{32}$/.test(nonce)) throw new Error("照片識別碼格式不正確");
-  return `activities/${activityId}/groups/${groupId}/missions/${missionId}/${uid}/${photoKey}-${nonce}.jpg`;
+  return `activities/${activityId}/groups/${groupId}/missions/${missionId}/${uid}/${photoKey}.jpg`;
 }
 export async function uploadGroupPhoto({missionId,photoKey,blob,onProgress}) {
   if(!storage || !auth?.currentUser?.isAnonymous) throw new Error("必須先匿名登入");
@@ -47,8 +47,7 @@ export async function uploadGroupPhoto({missionId,photoKey,blob,onProgress}) {
   if(!group) throw new Error("請先加入小組");
   if(!(blob instanceof Blob) || blob.type!=="image/jpeg" || blob.size>MAX_OUTPUT_BYTES)
     throw new Error("請先完成 JPEG 壓縮");
-  const nonce=Array.from(crypto.getRandomValues(new Uint8Array(16)),b=>b.toString(16).padStart(2,"0")).join("");
-  const path=storagePhotoPath({...group,missionId,photoKey,uid:auth.currentUser.uid,nonce});
+  const path=storagePhotoPath({...group,missionId,photoKey,uid:auth.currentUser.uid});
   onProgress?.("上傳中");
   const obj=ref(storage,path);
   await uploadBytes(obj,blob,{contentType:"image/jpeg"});
