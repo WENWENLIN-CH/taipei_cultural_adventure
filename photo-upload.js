@@ -41,19 +41,48 @@ export function storagePhotoPath({activityId,groupId,missionId,uid,photoKey}) {
   if(!keys?.includes(photoKey)) throw new Error("不符合該關的照片欄位");
   return `activities/${activityId}/groups/${groupId}/missions/${missionId}/${uid}/${photoKey}.jpg`;
 }
+// Idempotent retry: only reuse an existing object when its stored digest matches
+// the actual image bytes. A different photo cannot overwrite an occupied slot.
 export async function uploadGroupPhoto({missionId,photoKey,blob,onProgress}) {
   if(!storage || !auth?.currentUser?.isAnonymous) throw new Error("必須先匿名登入");
   const group=await resumeGroup();
   if(!group) throw new Error("請先加入小組");
-  if(!(blob instanceof Blob) || blob.type!=="image/jpeg" || blob.size>MAX_OUTPUT_BYTES)
+  if(!(blob instanceof Blob) || blob.type!=="image/jpeg" || blob.size<=0 || blob.size>MAX_OUTPUT_BYTES)
     throw new Error("請先完成 JPEG 壓縮");
   const path=storagePhotoPath({...group,missionId,photoKey,uid:auth.currentUser.uid});
-  onProgress?.("上傳中");
   const obj=ref(storage,path);
-  await uploadBytes(obj,blob,{contentType:"image/jpeg"});
-  const metadata=await getMetadata(obj);
-  if(metadata.contentType!=="image/jpeg"||Number(metadata.size)!==blob.size)
-    throw new Error("上傳後檔案資訊不一致，請勿提交任務");
+  const digest=Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256",await blob.arrayBuffer())),b=>b.toString(16).padStart(2,"0")).join("");
+  async function verifyExisting() {
+    const metadata=await getMetadata(obj);
+    if(metadata.contentType!=="image/jpeg" || Number(metadata.size)!==blob.size ||
+       metadata.customMetadata?.sha256!==digest) {
+      throw new Error("此欄位已有不同照片，不能覆蓋。請聯絡老師處理補拍。");
+    }
+    onProgress?.("已找到先前上傳成功的相同照片，繼續提交。");
+    return {path,bytes:blob.size,reused:true};
+  }
+  onProgress?.("檢查照片是否已上傳…");
+  try {
+    return await verifyExisting();
+  } catch(e) {
+    // A missing file may be created; any other failure (including unauthorized
+    // access or a different existing photo) must never trigger a blind upload.
+    if(e.code!=="storage/object-not-found") throw e;
+  }
+  onProgress?.("上傳中…");
+  try {
+    await uploadBytes(obj,blob,{contentType:"image/jpeg",customMetadata:{sha256:digest}});
+  } catch(e) {
+    // The server might have committed an upload just before the connection
+    // broke, or another request might have raced us. Never assume failure
+    // means no object exists; verify the immutable object's digest.
+    try {return await verifyExisting();}
+    catch(checkError) {
+      if(checkError.code==="storage/object-not-found") throw e;
+      throw checkError;
+    }
+  }
+  const result=await verifyExisting();
   onProgress?.("照片已上傳至雲端（尚未完成關卡）");
-  return {path,bytes:blob.size};
+  return result;
 }
