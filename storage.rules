@@ -26,7 +26,8 @@ service firebase.storage {
       allow get: if member(activityId, groupId) || teacher();
       allow list: if false;
       // Create-only: no overwrite or deletion by clients.
-      allow create: if signedIn()
+      allow create: if resource == null
+        && signedIn()
         && request.auth.uid == uploaderUid
         && member(activityId, groupId)
         && photoKey(missionId, filename)
