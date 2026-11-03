@@ -8,7 +8,8 @@
   "main": "index.js",
   "scripts": {
     "test": "node --test test/submission-core.test.mjs",
-    "test:integration": "node --test test/submission-emulator.test.mjs"
+    "test:integration": "node --test test/submission-emulator.test.mjs",
+    "test:real-storage": "node --test test/submission-real-storage.test.mjs"
   },
   "dependencies": {
     "firebase-admin": "^13.0.0",
