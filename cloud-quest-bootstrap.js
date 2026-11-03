@@ -5,7 +5,9 @@ import {watchAuth,studentSignIn} from "./firebase-auth.js";
 import {joinByInvitation,resumeGroup,watchGroupMissions} from "./group-service.js";
 import {submitOriginalMission} from "./mission-cloud-flow.js";
 
-const SUBMISSIONS_ENABLED=false;
+const SUBMISSIONS_ENABLED=false; // Do not enable until live function + pilot review.
+const PILOT_GROUP="group01";
+const PILOT_MISSION=3;
 let group=null,unsubscribe=null;
 const status=document.getElementById("cloudStatus");
 const inviteInput=document.getElementById("cloudInvite");
@@ -22,9 +24,12 @@ function notice(text){feedback.textContent=text;}
 function completedMission(id){return completed.has(Number(id));}
 window.cloudQuestCompleted=completedMission;
 window.cloudQuestIsReady=()=>Boolean(group);
+window.cloudQuestMaySubmit=(missionId)=>SUBMISSIONS_ENABLED && Boolean(group) && group.activityId==="demo2026" && group.groupId===PILOT_GROUP && Number(missionId)===PILOT_MISSION && !completedMission(missionId);
 window.cloudQuestSubmit=async(missionId,formData)=>{
   if(!group)throw Error("請先以專屬加入碼加入小組");
   if(!SUBMISSIONS_ENABLED)throw Error("雲端任務提交尚未開放，這一版只測試加入小組與共享進度。");
+  if(group.activityId!=="demo2026"||group.groupId!==PILOT_GROUP||Number(missionId)!==PILOT_MISSION)
+    throw Error("目前只開放第一組第三關受控測試");
   if(submitting)throw Error("正在提交，請勿重複點擊");
   if(completedMission(missionId))throw Error("這關已有一份小組共同成果");
   submitting=true;
