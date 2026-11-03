@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import assert from "node:assert/strict";
 import { initializeTestEnvironment, assertFails, assertSucceeds } from "@firebase/rules-unit-testing";
-import { doc, getDoc, setDoc, writeBatch, serverTimestamp } from "firebase/firestore";
+import { doc, getDoc, setDoc, writeBatch, runTransaction, serverTimestamp } from "firebase/firestore";
 
 const env = await initializeTestEnvironment({
   projectId: "demo-taipei-quest",
@@ -65,14 +65,27 @@ try {
   });
   await check("未加入的使用者無法查看小組資料",()=>assertFails(getDoc(doc(charlie,groupA))));
   await check("未加入的使用者無法查看第一組關卡",()=>assertFails(getDoc(doc(charlie,groupA+"/missions/1"))));
-  await check("一次性邀請碼與成員建立必須原子提交",async()=>{
-    const batch=writeBatch(charlie);
-    batch.update(doc(charlie,"invites/"+invite), {claimedBy:"charlie",claimedAt:serverTimestamp()});
-    batch.set(doc(charlie,groupA+"/members/charlie"), {inviteId:invite,studentCode:"S03",joinedAt:serverTimestamp()});
-    await assertSucceeds(batch.commit());
+  await check("匿名學生透過交易成功領取邀請碼並加入組別",async()=>{
+    // Same transaction pattern as browser group-service.js, not just a write batch.
+    await assertSucceeds(runTransaction(charlie,async tx=>{
+      const ref=doc(charlie,"invites/"+invite);
+      const snap=await tx.get(ref);
+      assert.equal(snap.exists(),true);
+      assert.equal(snap.data().claimedBy,null);
+      const memberRef=doc(charlie,groupA+"/members/charlie");
+      tx.update(ref,{claimedBy:"charlie",claimedAt:serverTimestamp()});
+      tx.set(memberRef,{inviteId:invite,studentCode:snap.data().studentCode,joinedAt:serverTimestamp()});
+    }));
     const result=await assertSucceeds(getDoc(doc(charlie,groupA)));
     assert.equal(result.data().displayName,"第一組");
   });
+  await check("加入後可讀取自己的成員資料",async()=>{
+    const snap=await assertSucceeds(getDoc(doc(charlie,groupA+"/members/charlie")));
+    assert.equal(snap.data().studentCode,"S03");
+  });
+  await check("加入後仍然不能寫入已完成的任務",()=>assertFails(
+    setDoc(doc(charlie,groupA+"/missions/2"),{status:"completed"})
+  ));
   await check("同一邀請碼不可被別人再次領取",async()=>{
     const batch=writeBatch(bob);
     batch.update(doc(bob,"invites/"+invite),{claimedBy:"bob",claimedAt:serverTimestamp()});
