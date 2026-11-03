@@ -1,0 +1,49 @@
+// Invitation-based group enrollment foundation. This is a DEVELOPMENT module.
+// Invitations are created by the teacher in Firebase Console (not by clients).
+import { auth, isConfigured } from "./firebase-auth.js";
+import {
+  getFirestore, doc, getDoc, runTransaction, serverTimestamp, onSnapshot
+} from "https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js";
+export const db = isConfigured ? getFirestore(auth.app) : null;
+const TOKEN_PATTERN = /^[a-f0-9]{48}$/i;
+const ID_PATTERN = /^[a-zA-Z0-9_-]{1,60}$/;
+function requireStudent() {
+  if (!auth?.currentUser?.isAnonymous) throw new Error("請先使用學生匿名登入");
+  return auth.currentUser.uid;
+}
+export async function joinByInvitation(rawToken) {
+  const uid = requireStudent();
+  const token = rawToken.trim();
+  if (!TOKEN_PATTERN.test(token)) throw new Error("加入碼格式不正確（應為 48 位英數碼）");
+  const inviteRef = doc(db, "invites", token);
+  const inviteSnap = await getDoc(inviteRef);
+  if (!inviteSnap.exists()) throw new Error("找不到此加入碼");
+  const info = inviteSnap.data();
+  if (!ID_PATTERN.test(info.activityId ?? "") || !ID_PATTERN.test(info.groupId ?? "")) {
+    throw new Error("加入碼資料有誤");
+  }
+  const memberRef = doc(db, "activities", info.activityId, "groups", info.groupId, "members", uid);
+  await runTransaction(db, async tx => {
+    const snap = await tx.get(inviteRef);
+    if (!snap.exists() || snap.data().claimedBy !== null) {
+      throw new Error("此加入碼已使用，請向老師索取新的加入碼");
+    }
+    tx.update(inviteRef, { claimedBy: uid, claimedAt: serverTimestamp() });
+    tx.set(memberRef, {
+      inviteId: token,
+      studentCode: snap.data().studentCode,
+      joinedAt: serverTimestamp()
+    });
+  });
+  return {activityId: info.activityId, groupId: info.groupId, studentCode: info.studentCode};
+}
+export function watchGroupMissions({activityId,groupId}, callback, onError) {
+  requireStudent();
+  if (!ID_PATTERN.test(activityId) || !ID_PATTERN.test(groupId)) throw new Error("小組資訊不正確");
+  const unsubs = [1,2,3,4,5].map(id => onSnapshot(
+    doc(db,"activities",activityId,"groups",groupId,"missions",String(id)),
+    snap => callback(id, snap.exists() ? snap.data() : null),
+    onError
+  ));
+  return () => unsubs.forEach(unsub => unsub());
+}
