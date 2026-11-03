@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Firebase 連線與登入測試｜開發分支</title>
+  <style>
+    body{font-family:system-ui,-apple-system,sans-serif;max-width:620px;margin:28px auto;padding:0 18px;line-height:1.6;color:#233047}
+    .panel{border:1px solid #d9e2ed;border-radius:15px;padding:18px;margin:16px 0;background:#f8fafc}
+    button,input{font:inherit;padding:10px;margin:5px 0;border-radius:8px}
+    input{display:block;width:95%;border:1px solid #b8c5d3}
+    button{border:0;background:#2563eb;color:#fff;cursor:pointer;margin-right:8px}
+    button:disabled{opacity:.45;cursor:not-allowed}
+    #status{white-space:pre-wrap;overflow-wrap:anywhere;background:#edf2f7;padding:12px;border-radius:8px}
+    .note{color:#64748b;font-size:.9rem}
+  </style>
+</head>
+<body>
+  <h1>Firebase 連線測試</h1>
+  <p class="note">此頁僅用於開發測試，不會建立小組、上傳照片或讀寫闖關成果。不要在公開電腦測試教師密碼。</p>
+  <div class="panel">
+    <h2>目前登入狀態</h2>
+    <div id="status" role="status">正在載入…</div>
+    <button id="anonymous" disabled>學生匿名登入</button>
+    <button id="logout" disabled>登出</button>
+  </div>
+  <div class="panel">
+    <h2>教師登入測試</h2>
+    <form id="teacher-form">
+      <label for="email">教師電子郵件</label><input id="email" type="email" autocomplete="username" required>
+      <label for="password">密碼</label><input id="password" type="password" autocomplete="current-password" required>
+      <button id="teacher" type="submit" disabled>登入</button>
+    </form>
+    <p class="note">成功登入不代表已取得教師權限；正式教師後台需另由安全規則授權。</p>
+  </div>
+  <script type="module">
+    import { auth, isConfigured, watchAuth, studentSignIn, teacherSignIn, logout } from "./firebase-auth.js";
+    const status = document.getElementById("status");
+    const anonymous = document.getElementById("anonymous");
+    const teacher = document.getElementById("teacher");
+    const logoutButton = document.getElementById("logout");
+    if (!isConfigured) {
+      status.textContent = "尚未設定 Firebase。請先將 Firebase Console 中的 Web App 設定填入 firebase-config.js。";
+    } else {
+      anonymous.disabled = false;
+      teacher.disabled = false;
+      watchAuth(user => {
+        status.textContent = user
+          ? `已登入\nUID：${user.uid}\n類型：${user.isAnonymous ? "匿名學生（尚未加入小組）" : "一般登入使用者（尚未驗證教師權限）"}`
+          : "尚未登入";
+        anonymous.disabled = !!user;
+        logoutButton.disabled = !user;
+      });
+    }
+    anonymous.addEventListener("click", async () => {
+      try { await studentSignIn(); } catch(e) { status.textContent = "登入失敗：" + e.message; }
+    });
+    logoutButton.addEventListener("click", async () => {
+      try { await logout(); } catch(e) { status.textContent = "登出失敗：" + e.message; }
+    });
+    document.getElementById("teacher-form").addEventListener("submit", async e => {
+      e.preventDefault();
+      const password = document.getElementById("password");
+      try { await teacherSignIn(document.getElementById("email").value.trim(), password.value); }
+      catch(e) { status.textContent = "登入失敗：" + e.message; }
+      finally { password.value = ""; }
+    });
+  </script>
+</body>
+</html>
