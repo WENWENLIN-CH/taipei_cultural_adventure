@@ -19,11 +19,13 @@ assert.ok(js.includes('const STORAGE_KEY = "taipeiCulturalQuestCloudPreviewV1";'
 assert.ok(js.includes('window.cloudQuestCompleted?.(m.id)'),"Passport must be server-driven");
 assert.ok(js.includes('const done = Boolean(window.cloudQuestCompleted?.(id));'),"Island pins must use Firestore, not local completion state");
 assert.ok(!js.includes('const done = !!state.missions?.[id]?.completed;'),"Island pins must never use local completion state");
-assert.ok(js.includes('document.getElementById("completeMissionBtn").disabled = true;'),"Submission button must stay disabled");
+assert.ok(js.includes('document.getElementById("completeMissionBtn").disabled = !window.cloudQuestMaySubmit?.(m.id);'),"Submission button must obey scoped pilot gate");
 assert.ok(!js.includes("    ms.completed = true;"),"Direct local completion write must not exist");
 assert.ok(js.includes("return doneCount()===5;"),"Only all five completed unlock final");
 assert.ok(!js.includes("return doneCount()===5 || state.teacherUnlocked;"),"Teacher local password must not unlock cloud final");
 assert.ok(boot.includes("const SUBMISSIONS_ENABLED=false;"),"Preview must not accept submissions");
+assert.ok(boot.includes('const PILOT_MISSION=3;'),"Only mission 3 may be piloted");
+assert.ok(boot.includes('const PILOT_GROUP="group01";'),"Only group01 may be piloted");
 assert.ok(boot.includes('badge.textContent=done?"✓":"?"'),"Island badges must follow Firestore completion");
 assert.ok(uploader.includes("evaluateExistingPhoto(metadata,{sha256:digest,bytes:blob.size})"),"Retry must verify exact existing photo metadata");
 assert.ok(uploader.includes('customMetadata:{sha256:digest}'),"Upload must record digest for safe resume");
