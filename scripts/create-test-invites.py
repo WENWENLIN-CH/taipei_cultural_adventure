@@ -60,6 +60,10 @@ def main():
     group_doc = request("GET", f"{BASE}/activities/{ACTIVITY}/groups/{GROUP}", token)
     if group_doc.get("fields", {}).get("displayName", {}).get("stringValue") != "第一組":
         raise SystemExit("Group displayName does not match 第一組. Aborting.")
+    from pathlib import Path
+    p = Path("test-invite-codes.txt")
+    if p.exists():
+        raise SystemExit("test-invite-codes.txt already exists. Avoid creating duplicate invitations.")
     invitation_pairs = [(f"S{i:02}", secrets.token_hex(24)) for i in range(1, 5)]
     writes = []
     for student, code in invitation_pairs:
@@ -78,8 +82,6 @@ def main():
     request("POST", f"{BASE}:commit", token, {"writes": writes})
 
     # Keep a private copy in the Cloud Shell workspace; do not upload or screenshot it.
-    from pathlib import Path
-    p = Path("test-invite-codes.txt")
     import os
     fd = os.open(str(p), os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
     with os.fdopen(fd, "w", encoding="utf8") as out:
