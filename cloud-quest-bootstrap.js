@@ -37,6 +37,13 @@ function render(){
   status.textContent=`Firebase 小組身分：${name}\n同步狀態：${group?(readyCount===5?"已連線":"連線中"):"未連線"}\n目前模式：僅共享進度預覽，禁止正式提交`;
   dashboardStatus.textContent=group ? `小組：${group.groupId}｜我的代碼：${group.studentCode}｜已完成：${completed.size}／5｜${readyCount===5?"即時同步已連線":"進度讀取中"}` : "尚未加入小組";
   joinButton.disabled=Boolean(group);
+  // Keep island pin badges consistent with passport count after each Firestore snapshot.
+  document.querySelectorAll(".map-mission").forEach(btn=>{
+    const done=completedMission(btn.dataset.mission);
+    btn.classList.toggle("done",done);
+    const badge=btn.querySelector(".pin-state");
+    if(badge)badge.textContent=done?"✓":"?";
+  });
   const screen=document.getElementById("dashboardScreen");
   if(group && screen?.classList.contains("active")) window.showDashboard?.();
 }
