@@ -13,6 +13,7 @@ for(const [source,target] of [
   ["group-test.html","group-test.html"],
   ["group-service.js","group-service.js"],
   ["photo-test.html","photo-test.html"],
+  ["photo-cloud-test.html","photo-cloud-test.html"],
   ["photo-upload.js","photo-upload.js"],
   ["mission-schema.js","mission-schema.js"]
 ]){
