@@ -11,8 +11,11 @@ for(const [source,target] of [
   ["firebase-auth.js","firebase-auth.js"],
   ["firebase-config.js","firebase-config.js"],
   ["group-test.html","group-test.html"],
-  ["group-service.js","group-service.js"]
+  ["group-service.js","group-service.js"],
+  ["photo-test.html","photo-test.html"],
+  ["photo-upload.js","photo-upload.js"],
+  ["mission-schema.js","mission-schema.js"]
 ]){
   await copyFile(join(root,source),join(output,target));
 }
-console.log("Created isolated Firebase Hosting preview containing login test files only.");
+console.log("Created isolated Firebase preview containing login, group, and local photo tests only.");
