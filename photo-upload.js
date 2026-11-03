@@ -6,6 +6,7 @@ import { auth } from "./firebase-auth.js";
 import { resumeGroup } from "./group-service.js";
 import { getStorage, ref, uploadBytes, getMetadata } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-storage.js";
 import { REQUIRED_PHOTO_KEYS } from "./mission-schema.js";
+import {evaluateExistingPhoto,shouldUploadAfterReadError} from "./photo-retry-policy.js";
 
 const MAX_INPUT_BYTES = 12 * 1024 * 1024;
 const MAX_OUTPUT_BYTES = 1024 * 1024;
@@ -54,10 +55,7 @@ export async function uploadGroupPhoto({missionId,photoKey,blob,onProgress}) {
   const digest=Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256",await blob.arrayBuffer())),b=>b.toString(16).padStart(2,"0")).join("");
   async function verifyExisting() {
     const metadata=await getMetadata(obj);
-    if(metadata.contentType!=="image/jpeg" || Number(metadata.size)!==blob.size ||
-       metadata.customMetadata?.sha256!==digest) {
-      throw new Error("此欄位已有不同照片，不能覆蓋。請聯絡老師處理補拍。");
-    }
+    evaluateExistingPhoto(metadata,{sha256:digest,bytes:blob.size});
     onProgress?.("已找到先前上傳成功的相同照片，繼續提交。");
     return {path,bytes:blob.size,reused:true};
   }
@@ -67,7 +65,7 @@ export async function uploadGroupPhoto({missionId,photoKey,blob,onProgress}) {
   } catch(e) {
     // A missing file may be created; any other failure (including unauthorized
     // access or a different existing photo) must never trigger a blind upload.
-    if(e.code!=="storage/object-not-found") throw e;
+    shouldUploadAfterReadError(e);
   }
   onProgress?.("上傳中…");
   try {
