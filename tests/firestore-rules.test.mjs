@@ -54,6 +54,17 @@ try {
   await check("未登入不可讀取邀請碼",()=>assertFails(getDoc(doc(anon,"invites/"+invite))));
   await check("匿名持有正確邀請碼可讀取該邀請",()=>assertSucceeds(getDoc(doc(charlie,"invites/"+invite))));
   await check("不能只靠新增 member 文件偷加入",()=>assertFails(setDoc(doc(charlie,groupA+"/members/charlie"),{inviteId:invite,studentCode:"S03",joinedAt:serverTimestamp()})));
+  await check("直接領取邀請碼、未建立成員時必須拒絕",()=>assertFails(
+    setDoc(doc(charlie,"invites/"+invite),{claimedBy:"charlie",claimedAt:serverTimestamp()},{merge:true})
+  ));
+  await check("錯誤組別或學生代碼不能領取邀請碼",async()=>{
+    const batch=writeBatch(charlie);
+    batch.update(doc(charlie,"invites/"+invite), {claimedBy:"charlie",claimedAt:serverTimestamp()});
+    batch.set(doc(charlie,groupB+"/members/charlie"), {inviteId:invite,studentCode:"S03",joinedAt:serverTimestamp()});
+    await assertFails(batch.commit());
+  });
+  await check("未加入的使用者無法查看小組資料",()=>assertFails(getDoc(doc(charlie,groupA))));
+  await check("未加入的使用者無法查看第一組關卡",()=>assertFails(getDoc(doc(charlie,groupA+"/missions/1"))));
   await check("一次性邀請碼與成員建立必須原子提交",async()=>{
     const batch=writeBatch(charlie);
     batch.update(doc(charlie,"invites/"+invite), {claimedBy:"charlie",claimedAt:serverTimestamp()});
