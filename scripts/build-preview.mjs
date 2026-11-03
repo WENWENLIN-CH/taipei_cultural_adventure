@@ -9,7 +9,9 @@ await mkdir(output,{recursive:true});
 for(const [source,target] of [
   ["firebase-test.html","index.html"],
   ["firebase-auth.js","firebase-auth.js"],
-  ["firebase-config.js","firebase-config.js"]
+  ["firebase-config.js","firebase-config.js"],
+  ["group-test.html","group-test.html"],
+  ["group-service.js","group-service.js"]
 ]){
   await copyFile(join(root,source),join(output,target));
 }
