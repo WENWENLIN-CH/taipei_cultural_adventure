@@ -21,6 +21,7 @@ js=once(js,'const STORAGE_KEY = "taipeiCulturalQuestV1";','const STORAGE_KEY = "
 js=once(js,'return missions.filter(m=>state.missions?.[m.id]?.completed).length;','return missions.filter(m=>window.cloudQuestCompleted?.(m.id)).length;',"done count");
 js=once(js,'return doneCount()===5 || state.teacherUnlocked;','return doneCount()===5;',"final unlock");
 js=js.replaceAll('const done = !!state.missions?.[m.id]?.completed;','const done = Boolean(window.cloudQuestCompleted?.(m.id));');
+js=once(js,'const done = !!state.missions?.[id]?.completed;','const done = Boolean(window.cloudQuestCompleted?.(id));',"island pin cloud state");
 js=once(js,'${ms.completed?"✓ 已完成此任務":"完成任務"}','${window.cloudQuestCompleted?.(m.id)?"✓ 已完成此任務":"提交小組共同成果（尚未開放）"}',"mission button label");
 js=once(js,'    ms.completed = true;\n    saveState();\n    alert("MISSION CLEAR！🎉\\n文化印章已收入護照。");\n    showDashboard();','    try {\n      await window.cloudQuestSubmit(m.id, ms.data);\n      alert("伺服器已接收成果，請等待共享進度更新。");\n      showDashboard();\n    } catch(err) { alert("尚未完成任務："+err.message); }',"server authority");
 js=once(js,'  showScreen("missionScreen");','  document.getElementById("completeMissionBtn").disabled = true;\n  showScreen("missionScreen");',"disable submissions");
