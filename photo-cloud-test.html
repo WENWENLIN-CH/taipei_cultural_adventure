@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Firebase 照片雲端上傳測試</title>
+<style>
+body{max-width:650px;margin:24px auto;padding:0 18px;font:16px/1.6 system-ui,sans-serif;color:#233047}
+section{background:#f8fafc;border:1px solid #d8e0eb;border-radius:14px;padding:18px;margin:16px 0}
+button,input{font:inherit;padding:10px;border-radius:8px;max-width:100%}
+button{background:#2563eb;color:white;border:0;margin:8px 0}
+button:disabled{background:#9ca3af}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#e9eef6;padding:12px;border-radius:9px}
+img{max-width:100%;max-height:300px;border-radius:9px}
+</style></head>
+<body>
+<h1>雲端照片上傳｜單張測試</h1>
+<p><strong>僅供 S01 的測試帳號使用。</strong> 這個測試會真正把一張照片上傳至 Firebase Storage；不會修改 Firestore 闖關成果，也不會判定過關。請使用不包含學生個資的測試照片。</p>
+<section><h2>1. 確認登入與小組</h2><pre id="identity">確認登入中…</pre><button id="login">學生匿名登入</button></section>
+<section><h2>2. 選照片並壓縮</h2>
+<p>固定測試位置：demo2026／group01／第2關／lang1_photo。每個 UID 的這個欄位只能建立一次，不會覆蓋。</p>
+<input type="file" id="file" accept="image/*">
+<button id="compress">壓縮並預覽</button>
+<pre id="compression">尚未選擇照片</pre><img id="preview" hidden alt="照片預覽">
+</section>
+<section><h2>3. 上傳測試</h2>
+<p>此按鈕只有登入 S01、完成壓縮後才可按；部署 Storage 安全規則之前請勿進行。</p>
+<button id="upload" disabled>上傳一張測試照片</button>
+<pre id="result">尚未上傳</pre>
+</section>
+<script type="module">
+import {watchAuth,studentSignIn} from "./firebase-auth.js";
+import {resumeGroup} from "./group-service.js";
+import {compressPhoto,uploadGroupPhoto} from "./photo-upload.js";
+const el=id=>document.getElementById(id);
+let blob=null,group=null,url=null;
+const refresh=()=>{el("upload").disabled=!(blob&&group?.activityId==="demo2026"&&group?.groupId==="group01"&&group?.studentCode==="S01");};
+watchAuth(async user=>{
+  group=null;blob=null;refresh();
+  if(!user?.isAnonymous){el("identity").textContent="尚未使用學生匿名帳號登入";return;}
+  group=await resumeGroup();
+  el("identity").textContent=group?`學生：${group.studentCode}\n活動：${group.activityId}\n組別：${group.groupId}`:"尚未加入測試組別";
+  refresh();
+});
+el("login").onclick=async()=>{try{await studentSignIn();group=await resumeGroup();refresh()}catch(e){el("identity").textContent=e.message}};
+el("compress").onclick=async()=>{
+ const file=el("file").files?.[0];if(!file){el("compression").textContent="請先選擇照片";return;}
+ blob=null;refresh();
+ try{
+  blob=await compressPhoto(file);
+  if(url)URL.revokeObjectURL(url);
+  url=URL.createObjectURL(blob);el("preview").src=url;el("preview").hidden=false;
+  el("compression").textContent=`照片壓縮成功：${(file.size/1024).toFixed(1)} KB → ${(blob.size/1024).toFixed(1)} KB`;
+ }catch(e){el("compression").textContent="壓縮失敗："+e.message}
+ refresh();
+};
+el("upload").onclick=async()=>{
+ el("upload").disabled=true;
+ try{
+  const item=await uploadGroupPhoto({missionId:2,photoKey:"lang1_photo",blob,onProgress:t=>el("result").textContent=t});
+  el("result").textContent=`上傳成功。儲存路徑：${item.path}\n照片大小：${item.bytes} bytes\n尚未完成任何關卡。`;
+ }catch(e){el("result").textContent="上傳失敗："+e.message;}
+ // Deliberately do not re-enable upload. A single test upload only.
+};
+</script></body></html>
