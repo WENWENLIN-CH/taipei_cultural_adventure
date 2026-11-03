@@ -1,0 +1,14 @@
+import assert from "node:assert/strict";
+import test from "node:test";
+import {evaluateExistingPhoto,shouldUploadAfterReadError} from "../photo-retry-policy.js";
+const digest="ab".repeat(32);
+const good=()=>({contentType:"image/jpeg",size:50874,customMetadata:{sha256:digest}});
+test("exact same uploaded photo can be reused",()=>assert.equal(evaluateExistingPhoto(good(),{sha256:digest,bytes:50874}),true));
+test("different image digest cannot overwrite",()=>assert.throws(()=>evaluateExistingPhoto(good(),{sha256:"cd".repeat(32),bytes:50874})));
+test("different file size cannot overwrite",()=>assert.throws(()=>evaluateExistingPhoto(good(),{sha256:digest,bytes:50900})));
+test("wrong MIME cannot be reused",()=>assert.throws(()=>evaluateExistingPhoto({...good(),contentType:"image/png"},{sha256:digest,bytes:50874})));
+test("old test photo without digest cannot be assumed identical",()=>assert.throws(()=>evaluateExistingPhoto({...good(),customMetadata:{}},{sha256:digest,bytes:50874})));
+test("empty or oversized file cannot be reused",()=>{for(const bytes of [0,1024*1024+1])assert.throws(()=>evaluateExistingPhoto(good(),{sha256:digest,bytes}));});
+test("only object-not-found permits fresh upload",()=>assert.equal(shouldUploadAfterReadError({code:"storage/object-not-found"}),true));
+test("permission denied must not trigger new upload",()=>assert.throws(()=>shouldUploadAfterReadError(Object.assign(new Error("denied"),{code:"storage/unauthorized"}))));
+test("offline error must not trigger blind upload",()=>assert.throws(()=>shouldUploadAfterReadError(Object.assign(new Error("offline"),{code:"storage/retry-limit-exceeded"}))));
