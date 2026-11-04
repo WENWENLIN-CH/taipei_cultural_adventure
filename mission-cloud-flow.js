@@ -4,7 +4,7 @@ import {uploadMissionWithRecovery} from "./mission-upload-recovery.js";
 import {uploadGroupPhoto} from "./photo-upload.js";
 import {submitGroupMission} from "./mission-submission.js";
 
-export async function submitOriginalMission({missionId,formData,onProgress=()=>{}}){
+export async function submitOriginalMission({missionId,formData,onProgress=()=>{},submitMission=submitGroupMission}){
  return uploadMissionWithRecovery({
    missionId,formData,onProgress,
    loadPhoto:async dataUrl=>{
@@ -13,6 +13,6 @@ export async function submitOriginalMission({missionId,formData,onProgress=()=>{
      return response.blob();
    },
    uploadPhoto:uploadGroupPhoto,
-   submitMission:submitGroupMission
+   submitMission
  });
 }
