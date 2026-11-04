@@ -1,0 +1,42 @@
+// CANDIDATE ONLY for pilot2026 stage2. NOT DEPLOYED.\n// Preserve demo2026 and pilot2026/group01/mission1; add only mission2 photo slots.
+// One fixed filename per authenticated member, mission and photo slot.
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    function signedIn() { return request.auth != null; }
+    function member(activityId, groupId) {
+      return signedIn() &&
+        firestore.exists(/databases/(default)/documents/activities/$(activityId)/groups/$(groupId)/members/$(request.auth.uid));
+    }
+    function teacher() {
+      return signedIn() &&
+        firestore.exists(/databases/(default)/documents/teacherAccess/$(request.auth.uid)) &&
+        firestore.get(/databases/(default)/documents/teacherAccess/$(request.auth.uid)).data.authorized == true;
+    }
+    function photoKey(missionId, filename) {
+      return (missionId == "1" && filename == "photo1.jpg") ||
+        (missionId == "2" && filename.matches("^lang[1-4]_photo[.]jpg$")) ||
+        (missionId == "3" && filename.matches("^photo[1-2][.]jpg$")) ||
+        (missionId == "4" && filename.matches("^c[1-3]_photo[.]jpg$")) ||
+        (missionId == "5" && filename.matches("^p[1-3]_photo[.]jpg$"));
+    }
+    match /activities/{activityId}/groups/{groupId}/missions/{missionId}/{uploaderUid}/{filename} {
+      allow get: if member(activityId, groupId) || teacher();
+      allow list: if false;
+      // No arbitrary filename suffix: each enrolled UID has only 13 allowed slots.
+      // Protects against overwrites, but is NOT an absolute per-group quota.
+      allow create: if resource == null
+        && signedIn()
+        && request.auth.uid == uploaderUid
+        && member(activityId, groupId)
+        // Existing demo remains unchanged; pilot is restricted to group01 missions 1 and 2.
+        && (activityId == "demo2026" || (activityId == "pilot2026" && groupId == "group01" && (missionId == "1" || missionId == "2")))
+        && photoKey(missionId, filename)
+        && request.resource.size > 0
+        && request.resource.size <= 1024 * 1024
+        && request.resource.contentType == 'image/jpeg';
+      allow update, delete: if false;
+    }
+    match /{other=**} { allow read, write: if false; }
+  }
+}
