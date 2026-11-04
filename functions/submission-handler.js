@@ -1,15 +1,27 @@
 // Trusted application handler, dependency-injected for emulator integration tests.
 // Storage contents must be verified server-side before a Firestore completion is created.
 import {PHOTO_KEYS, validateGroupPayload, parseVerifiedPhotoPath} from "./submission-core.js";
+import {permittedByScope} from "./pilot-scope.js";
 
-export function createSubmissionHandler({db,bucket,serverTimestamp,makeError}) {
+export function createSubmissionHandler({db,bucket,serverTimestamp,makeError,emulatorPilotScope=null}) {
   const fail=(code,message)=>{throw makeError(code,message);};
   return async function handleSubmission({uid,anonymous,data}) {
     if(!uid || !anonymous) return fail("unauthenticated","請先匿名登入");
     let input;
     try{input=validateGroupPayload(data);}
     catch(e){return fail("invalid-argument",e.message);}
-    if(input.activityId!=="demo2026") return fail("permission-denied","目前只開放測試活動");
+    // Default stays locked to demo2026 for existing production.
+    // pilot2026 can be injected only by a local emulator test harness.
+    // This does NOT activate a new live activity in functions/index.js.
+    if(emulatorPilotScope!==null){
+      if(process.env.FIRESTORE_EMULATOR_HOST===undefined ||
+         process.env.FIREBASE_STORAGE_EMULATOR_HOST===undefined ||
+         process.env.GCLOUD_PROJECT!=="demo-taipei-isolated-pilot" ||
+         !permittedByScope(emulatorPilotScope,input))
+        return fail("permission-denied","僅允許隔離模擬活動");
+    } else if(input.activityId!=="demo2026"){
+      return fail("permission-denied","目前只開放測試活動");
+    }
     const base=`activities/${input.activityId}/groups/${input.groupId}`;
     const memberRef=db.doc(`${base}/members/${uid}`);
     const member=await memberRef.get();
