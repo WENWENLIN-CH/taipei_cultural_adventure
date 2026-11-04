@@ -6,6 +6,7 @@ import {getFirestore,FieldValue} from "firebase-admin/firestore";
 import {getStorage} from "firebase-admin/storage";
 import {createSubmissionHandler} from "../submission-handler.js";
 import {PILOT2026_STAGE5} from "../pilot2026-stage5-authorization.js";
+import {requireStage4Completed} from "../pilot2026-stage5-prerequisite.js";
 const projectId="demo-taipei-isolated-pilot";
 if(process.env.GCLOUD_PROJECT!==projectId||
  !process.env.FIRESTORE_EMULATOR_HOST||!process.env.FIREBASE_STORAGE_EMULATOR_HOST||
@@ -32,7 +33,13 @@ const input=(override={})=>({
  activityId:"pilot2026",groupId:"group01",missionId:5,
  answers:{...answers},photoPaths:{...photoPaths},...override
 });
-const submit=(data=input(),uid="test02",anonymous=true)=>handler({uid,anonymous,data});
+const makeError=(code,message)=>Object.assign(new Error(message),{code});
+const submit=async(data=input(),uid="test02",anonymous=true)=>{
+ if(!uid||!anonymous)return handler({uid,anonymous,data});
+ if(data.activityId==="pilot2026"&&data.groupId==="group01"&&data.missionId===5)
+  await requireStage4Completed({db,data,makeError});
+ return handler({uid,anonymous,data});
+};
 const jpg=Buffer.from([255,216,255,224,0,16,74,70,73,70,0,1,0,0,255,217]);
 const save=(key,bytes=jpg,mime="image/jpeg")=>bucket.file(photoPaths[key]).save(bytes,{resumable:false,contentType:mime});
 const mission=db.doc(base+"/missions/5");
@@ -46,6 +53,17 @@ try{
  });
  const previous=await Promise.all([1,2,3,4].map(i=>db.doc(base+"/missions/"+i).get()));
  const count=async()=>{const s=await Promise.all([1,2,3,4,5].map(n=>db.doc(base+"/missions/"+n).get()));return s.filter(x=>x.exists && x.data().status==="completed").length;};
+ await test("Stage5 server rejects completion while Stage4 is missing or incomplete",async()=>{
+  const prior=db.doc(base+"/missions/4");
+  const original=(await prior.get()).data();
+  await prior.delete();
+  try{
+   await assert.rejects(submit(),{code:"failed-precondition"});
+   await prior.set({status:"pending"});
+   await assert.rejects(submit(),{code:"failed-precondition"});
+   assert.equal((await mission.get()).exists,false);
+  }finally{await prior.set(original);}
+ });
  await test("Before Stage5 submission 4/5 is incomplete and final puzzle must stay locked",async()=>{
   assert.equal(await count(),4);
   assert.equal((await mission.get()).exists,false);
