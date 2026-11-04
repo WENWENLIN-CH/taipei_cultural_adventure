@@ -24,6 +24,9 @@ assert.match(js,/getDoc\(doc\(db,"activities",activityId,"groups",groupId,"missi
 assert.match(js,/getBlob\(ref\(storage,path\),2\*1024\*1024\)/);
 assert.ok(js.includes("void (async()=>{"),"Photo downloads must run independently of mission rendering");
 assert.ok(js.includes("box.append(photoBox);missionDetails.append(box);"),"Mission card must render immediately");
+assert.ok(js.includes("blob.slice(0,3).arrayBuffer()"),"Validate downloaded JPEG bytes");
+assert.ok(js.includes("new Blob([blob],{type:\"image/jpeg\"})"),"Normalize valid JPEG MIME");
+assert.ok(js.includes("img.onerror="),"Show decoding failure without falsely declaring success");
 assert.ok(!js.includes("getDownloadURL"),"Do not expose tokenized public URLs");
 assert.ok(!js.includes("writeBatch"),"Dashboard cannot write");
 assert.ok(!js.includes("setDoc"),"Dashboard cannot write");
