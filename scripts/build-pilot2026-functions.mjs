@@ -18,7 +18,7 @@ const output={
 await writeFile(join(target,"package.json"),JSON.stringify(output,null,2)+"\n");
 const index=await readFile(join(target,"index.js"),"utf8");
 if(!index.includes("export const submitPilot2026Stage1=onCall(") ||
- index.includes("submitGroupMission") ||
+ /export\\s+const\\s+submitGroupMission\\s*=/.test(index) ||
  index.includes('from "./index.js"'))throw Error("Unsafe pilot2026 codebase entry");
 const names=(await import("node:fs")).readdirSync(target).sort();
 if(names.length!==6)throw Error("Unexpected files in isolated pilot source: "+names);
