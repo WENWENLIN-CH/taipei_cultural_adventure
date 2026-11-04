@@ -22,6 +22,17 @@ test("read-only five-quest UI stays disabled; mission3 pilot stays scoped",()=>{
  assert.ok(boot.includes("const PILOT_MISSION=3;"));
  assert.ok(!boot.includes("pilot2026"));
 });
+test("new emulator pilot scope is not injected into the live callable",()=>{
+ const index=read("functions/index.js");
+ const handler=read("functions/submission-handler.js");
+ assert.ok(!index.includes("emulatorPilotScope:"),"Live callable must not activate pilot scope");
+ assert.ok(handler.includes('process.env.GCLOUD_PROJECT!=="demo-taipei-isolated-pilot"'),
+   "Emulator pilot must be locked to a dedicated demo project");
+ assert.ok(handler.includes('process.env.FIREBASE_STORAGE_EMULATOR_HOST===undefined'),
+   "Emulator pilot must require Storage emulator");
+ assert.ok(handler.includes('process.env.FIRESTORE_EMULATOR_HOST===undefined'),
+   "Emulator pilot must require Firestore emulator");
+});
 test("scope definition has no network or mutation imports",()=>{
  const src=read("functions/pilot-scope.js");
  assert.ok(!/firebase-admin|firebase-functions|getFirestore|setDoc|firebase deploy/.test(src));
