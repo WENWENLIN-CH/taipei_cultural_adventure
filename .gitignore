@@ -5,3 +5,4 @@ node_modules/
 
 # One-time group invitation credentials (never commit)
 test-invite-codes.txt
+s03-test-invite-code.txt
