@@ -1,10 +1,13 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {execFileSync} from "node:child_process";
+import {dirname,join} from "node:path";
+import {fileURLToPath} from "node:url";
+const functionsDir=join(dirname(fileURLToPath(import.meta.url)),"..");
 import {makePlan,verifyLiveOptIn,applyPlan,PILOT_BASE} from "../scripts/prepare-pilot2026-stage1.mjs";
 
 test("dry-run prints a plan with no invitation secret and no Firebase writes",()=>{
- const output=execFileSync(process.execPath,["scripts/prepare-pilot2026-stage1.mjs"],{cwd:"functions",encoding:"utf8"});
+ const output=execFileSync(process.execPath,["scripts/prepare-pilot2026-stage1.mjs"],{cwd:functionsDir,encoding:"utf8"});
  const plan=JSON.parse(output);
  assert.equal(plan.mode,"DRY_RUN_NO_WRITES");
  assert.equal(plan.project,"taipei-cultural-adventure");
