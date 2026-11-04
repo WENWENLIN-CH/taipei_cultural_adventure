@@ -1,0 +1,71 @@
+// RECOVERY CANDIDATE ONLY. NOT DEPLOYED. Do not replace live rules without review.
+// Invitations have unpredictable 48-digit hex IDs, distributed privately.
+// The student client must NOT get permissions to list invitations/groups.
+// For this phase, student cannot create/edit mission submissions yet.
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function isTeacher() {
+      return signedIn() &&
+        exists(/databases/$(database)/documents/teacherAccess/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/teacherAccess/$(request.auth.uid)).data.authorized == true;
+    }
+    function isMember(activityId, groupId) {
+      return signedIn() &&
+        exists(/databases/$(database)/documents/activities/$(activityId)/groups/$(groupId)/members/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/activities/$(activityId)/groups/$(groupId)/members/$(request.auth.uid)).data.get('revoked',false) != true;
+    }
+    match /teacherAccess/{uid} {
+      allow get: if signedIn() && request.auth.uid == uid;
+      allow list, create, update, delete: if false;
+    }
+    match /invites/{token} {
+      allow get: if signedIn() && token.matches('^[a-fA-F0-9]{48}$');
+      allow list, create, delete: if false;
+      allow update: if signedIn()
+        && resource.data.claimedBy == null
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['claimedBy', 'claimedAt'])
+        && request.resource.data.claimedBy == request.auth.uid
+        && request.resource.data.claimedAt == request.time
+        && existsAfter(/databases/$(database)/documents/activities/$(resource.data.activityId)/groups/$(resource.data.groupId)/members/$(request.auth.uid))
+        && getAfter(/databases/$(database)/documents/activities/$(resource.data.activityId)/groups/$(resource.data.groupId)/members/$(request.auth.uid)).data.inviteId == token;
+    }
+    match /activities/{activityId} {
+      allow get: if isTeacher();
+      allow list, create, update, delete: if false;
+      match /groups/{groupId} {
+        allow get: if isMember(activityId,groupId) || isTeacher();
+        allow list: if isTeacher();
+        allow create, update, delete: if false;
+        match /members/{uid} {
+          allow get: if (signedIn() && request.auth.uid == uid) || isTeacher();
+          allow list: if isTeacher();
+          allow create: if signedIn() && request.auth.uid == uid
+            && request.resource.data.keys().hasOnly(['inviteId','studentCode','joinedAt'])
+            && request.resource.data.keys().hasAll(['inviteId','studentCode','joinedAt'])
+            && request.resource.data.joinedAt == request.time
+            && request.resource.data.inviteId is string
+            && request.resource.data.inviteId.matches('^[a-fA-F0-9]{48}$')
+            && exists(/databases/$(database)/documents/invites/$(request.resource.data.inviteId))
+            && get(/databases/$(database)/documents/invites/$(request.resource.data.inviteId)).data.activityId == activityId
+            && get(/databases/$(database)/documents/invites/$(request.resource.data.inviteId)).data.groupId == groupId
+            && get(/databases/$(database)/documents/invites/$(request.resource.data.inviteId)).data.studentCode == request.resource.data.studentCode
+            && get(/databases/$(database)/documents/invites/$(request.resource.data.inviteId)).data.claimedBy == null
+            && getAfter(/databases/$(database)/documents/invites/$(request.resource.data.inviteId)).data.claimedBy == uid;
+          allow update, delete: if false;
+        }
+        match /missions/{missionId} {
+          allow get: if isMember(activityId,groupId) || isTeacher();
+          allow list: if isTeacher();
+          allow create, update, delete: if false;
+        }
+        match /final/{finalId} {
+          allow get: if isMember(activityId,groupId) || isTeacher();
+          allow list, create, update, delete: if false;
+        }
+      }
+    }
+    match /{document=**} { allow read, write: if false; }
+  }
+}
