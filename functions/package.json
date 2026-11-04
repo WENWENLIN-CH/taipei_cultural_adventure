@@ -12,7 +12,8 @@
     "test:real-storage": "node --test test/submission-real-storage.test.mjs",
     "test:callable": "node --test test/callable-e2e.test.mjs",
     "test:four-missions": "node --test test/four-missions-callable.test.mjs",
-    "test:three-groups": "node --test test/three-groups-five-missions.test.mjs"
+    "test:three-groups": "node --test test/three-groups-five-missions.test.mjs",
+    "test:pilot-scope": "node --test test/pilot-scope.test.mjs"
   },
   "dependencies": {
     "firebase-admin": "^13.0.0",
