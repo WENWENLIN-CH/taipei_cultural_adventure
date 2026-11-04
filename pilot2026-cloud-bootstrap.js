@@ -4,11 +4,14 @@ import {watchAuth,studentSignIn} from "./firebase-auth.js";
 import {joinByInvitation,resumeGroup,watchGroupMissions,db} from "./group-service.js";
 import {doc,getDoc} from "https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js";
 import {submitOriginalMission} from "./mission-cloud-flow.js";
+import {submitPilot2026Stage1} from "./pilot2026-stage1-submission.js";
 
 const ACTIVITY_ID="pilot2026";
 const ALLOWED_GROUPS=Object.freeze(["group01","group02","group03"]);
 const ALLOWED_MISSIONS=Object.freeze([1,2,3,4,5]);
 const SUBMISSIONS_ENABLED=false; // NEVER switch on before approved server rollout.
+const STAGE1_GROUP="group01";
+const STAGE1_MISSION=1;
 let group=null,unsubscribe=null,submitting=false,readyCount=0;
 const completed=new Set(),seen=new Set();
 const status=document.getElementById("cloudStatus");
@@ -25,12 +28,12 @@ function showJoin(){
  document.getElementById("homeBtn")?.classList.add("hidden");
 }
 window.cloudQuestCompleted=id=>completed.has(Number(id));
-window.cloudQuestMaySubmit=id=>SUBMISSIONS_ENABLED && allowed(group) && ALLOWED_MISSIONS.includes(Number(id)) && !completed.has(Number(id)) && !submitting && readyCount===5;
+window.cloudQuestMaySubmit=id=>SUBMISSIONS_ENABLED && allowed(group) && ALLOWED_MISSIONS.includes(Number(id)) && group.groupId===STAGE1_GROUP && Number(id)===STAGE1_MISSION && !completed.has(Number(id)) && !submitting && readyCount===5;
 window.cloudQuestSubmit=async(missionId,formData)=>{
  if(!window.cloudQuestMaySubmit(missionId))throw Error("pilot2026 尚未開放雲端提交，請勿使用真實照片");
  if(submitting)throw Error("提交處理中");
  submitting=true;
- try{return await submitOriginalMission({missionId,formData,onProgress:notice});}
+ try{return await submitOriginalMission({missionId,formData,onProgress:notice,submitMission:submitPilot2026Stage1});}
  finally{submitting=false;}
 };
 function render(){
