@@ -59,7 +59,7 @@ export async function resumeGroup() {
   const memberRef=doc(db,"activities",saved.activityId,"groups",saved.groupId,"members",uid);
   try {
     const snap=await getDoc(memberRef);
-    if(!snap.exists()) return null;
+    if(!snap.exists() || snap.data().revoked===true) return null;
     return {activityId:saved.activityId,groupId:saved.groupId,studentCode:snap.data().studentCode};
   } catch {return null;}
 }
