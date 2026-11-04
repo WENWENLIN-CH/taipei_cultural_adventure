@@ -13,7 +13,7 @@ export function createSubmissionHandler({db,bucket,serverTimestamp,makeError}) {
     const base=`activities/${input.activityId}/groups/${input.groupId}`;
     const memberRef=db.doc(`${base}/members/${uid}`);
     const member=await memberRef.get();
-    if(!member.exists) return fail("permission-denied","你不是這個小組的成員");
+    if(!member.exists || member.data()?.revoked===true) return fail("permission-denied","組員身分已失效，請由老師核發新的加入碼");
 
     const verified=[];
     for(const key of PHOTO_KEYS[input.missionId]){
@@ -44,7 +44,7 @@ export function createSubmissionHandler({db,bucket,serverTimestamp,makeError}) {
     const missionRef=db.doc(`${base}/missions/${input.missionId}`);
     await db.runTransaction(async tx=>{
       const [memberNow,existing]=await Promise.all([tx.get(memberRef),tx.get(missionRef)]);
-      if(!memberNow.exists) return fail("permission-denied","組員資格已失效");
+      if(!memberNow.exists || memberNow.data()?.revoked===true) return fail("permission-denied","組員資格已失效");
       if(existing.exists) return fail("already-exists","這關已有共同成果，不可重複提交");
       tx.create(missionRef,{
         status:"completed", answers:input.answers, photoPaths:input.photoPaths,
