@@ -13,7 +13,8 @@
     "test:cloud-preview": "node tests/cloud-preview.test.mjs",
     "test:photo-retry": "node --test tests/photo-retry.test.mjs",
     "check:functions-pilot": "node scripts/check-functions-pilot.mjs",
-    "test:pilot-preview": "node tests/pilot-preview.test.mjs"
+    "test:pilot-preview": "node tests/pilot-preview.test.mjs",
+    "test:same-origin-pilot": "node tests/same-origin-pilot.test.mjs"
   },
   "devDependencies": {
     "@firebase/rules-unit-testing": "^5.0.0",
