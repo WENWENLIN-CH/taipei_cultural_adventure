@@ -67,8 +67,11 @@ try{
   await assertFails(runTransaction(outsider.firestore(),async tx=>{
    const inviteRef=doc(outsider.firestore(),"invites/"+token);
    const snap=await tx.get(inviteRef);
-   if(snap.data()?.claimedBy!==null)throw Error("已領取，不可重複使用");
+   assert.equal(snap.data()?.claimedBy,"newUid");
    tx.update(inviteRef,{claimedBy:"stranger",claimedAt:serverTimestamp()});
+   tx.set(doc(outsider.firestore(),base+"/members/stranger"),{
+    studentCode:"S07",inviteId:token,joinedAt:serverTimestamp()
+   });
   }));
  });
  await test("新 UID 可以讀取既有完成紀錄與原照片，但不能跨組",async()=>{
