@@ -58,3 +58,31 @@ npm run test:pilot2026-stage5-emulator
 - 預覽頁不等於成功提交；真正進度以 Firestore 小組五關紀錄為準。
 - 不要將實際學生加入碼、身分憑證、學生照片貼入公開 GitHub。
 - 候選規則的文件開頭 `NOT DEPLOYED` 是 GitHub 候選檔案的狀態，不代表線上規則未部署其他已通過的 Stage1–3。
+
+## 第四、五關真實提交候選頁（已建立，但未部署）
+2026-11-05：使用者確認兩關唯讀手機驗收 5／5 成功：TEST02/group01 持續顯示 3／5、第四關三組餐廳與三張照片可操作、第五關三組商品與三張照片可操作、兩個預覽提交按鈕仍鎖定、前三關及終極謎題均不變。
+
+- 新增 `scripts/build-pilot2026-stage45-live-preview.mjs`，從已通過的 Stage4/5 唯讀頁與已實測的 Stage3 live 按鈕/Firestore 機制產生：
+  - `pilot2026-stage4-live-quest.html`、對應 JS/bootstrap、`pilot2026-stage4-submission.js`
+  - `pilot2026-stage5-live-quest.html`、對應 JS/bootstrap、`pilot2026-stage5-submission.js`
+- 各頁本機草稿獨立；僅可提交 `pilot2026/group01` 自己的關卡；第四關須先確認第三關已完成，第五關須先確認第四關已完成；全程等候五關 Firestore 快照就緒並在快照更新後刷新提交按鈕。
+- 前三關來源與已發布的 Function、QR、教師後台、Firestore、Storage、終極謎題**均未修改**。
+- 新增 `tests/pilot2026-stage45-live-preview.test.mjs`。
+- **注意：候選建置中的 SUBMISSIONS_ENABLED=true 是供未來審核後發布的專用頁使用；目前線上 auth-test 尚未更新這些檔案，且 Stage4、Stage5 Functions/Storage 仍未部署。禁止直接跳過後端安全審核發布這兩個 live 頁。**
+
+### 下一步：僅在 Cloud Shell 本機執行，不部署
+```bash
+cd ~/taipei_cultural_adventure
+git pull origin feature/firebase-sync
+npm run test:pilot2026-stage45-live-preview
+npm run test:pilot2026-stage45-release-preflight
+npm run test:pilot2026-stage45-final-gate
+npm run test:combined-five-preview
+```
+預期 Node live preview 測試為 4 項零失敗；確認所有測試無誤後再討論 Storage 已發布規則的精確增量與獨立 Functions 部署。若測試有任何失敗，立即停止，不部署。
+
+### 本階段未進行
+- Firebase Storage 線上規則發布
+- `pilot2026-stage4`、`pilot2026-stage5` Functions 部署
+- auth-test Hosting 重新發布
+- 第四、五關任何正式照片提交
