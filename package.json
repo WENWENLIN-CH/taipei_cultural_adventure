@@ -39,7 +39,9 @@
     "test:pilot2026-recovery-issue": "node --test tests/pilot2026-recovery-issue.test.mjs",
     "pilot2026:recovery-dry-run": "node functions/scripts/issue-pilot2026-recovery.mjs",
     "test:pilot2026-qr-preview": "node --test tests/pilot2026-qr-preview.test.mjs",
-    "pilot2026:make-qr": "node scripts/create-pilot2026-qr.mjs"
+    "pilot2026:make-qr": "node scripts/create-pilot2026-qr.mjs",
+    "test:pilot2026-test02-invite": "node --test tests/pilot2026-test02-invite.test.mjs",
+    "pilot2026:test02-dry-run": "node functions/scripts/issue-pilot2026-test02-invite.mjs"
   },
   "devDependencies": {
     "@firebase/rules-unit-testing": "^5.0.0",
