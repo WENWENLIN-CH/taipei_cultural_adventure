@@ -1,7 +1,8 @@
 // Isolated pilot2026 browser integration candidate. Not activated for writes.
 // Even if a user edits browser JS, the currently deployed Function rejects pilot2026.
 import {watchAuth,studentSignIn} from "./firebase-auth.js";
-import {joinByInvitation,resumeGroup,watchGroupMissions} from "./group-service.js";
+import {joinByInvitation,resumeGroup,watchGroupMissions,db} from "./group-service.js";
+import {doc,getDoc} from "https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js";
 import {submitOriginalMission} from "./mission-cloud-flow.js";
 
 const ACTIVITY_ID="pilot2026";
@@ -68,6 +69,10 @@ joinButton.onclick=async()=>{
   // Existing one-time invitation transaction validates group membership.
   // A demo2026 invite must NEVER enroll the user through this pilot page.
   const token=inviteInput.value.trim();
+  if(!/^[a-f0-9]{48}$/i.test(token))throw Error("加入碼格式不正確");
+  const invite=await getDoc(doc(db,"invites",token));
+  if(!invite.exists() || invite.data().activityId!==ACTIVITY_ID || !ALLOWED_GROUPS.includes(invite.data().groupId))
+    throw Error("這張加入碼不屬於 pilot2026，未領取，請聯絡老師");
   const g=await joinByInvitation(token);
   if(!allowed(g))throw Error("這張邀請碼不是 pilot2026 的試辦活動，請停止並聯絡老師");
   activate(g);inviteInput.value="";notice("加入試辦小組成功。五關雲端提交目前仍關閉。");
