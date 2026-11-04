@@ -50,3 +50,26 @@ npm run test:combined-five-preview
 - `tests/pilot2026-stage3-candidate.test.mjs`
 - `tests/pilot2026-storage-stage3.test.mjs`
 - `functions/test/pilot2026-stage3-emulator.test.mjs`
+
+## 第二階段：第三關真實提交候選（尚未部署）
+- 手機唯讀介面 4／4 成功：TEST02 同瀏覽器恢復 group01、顯示 2／5，餐廳名稱和兩張照片輸入正常，提交仍關閉。
+- 第三關伺服器模擬測試已由教師確認通過 6／6；照片 Storage 權限模擬測試需在發布前再次確認。
+- 新增 `scripts/build-pilot2026-stage3-live-preview.mjs`：以已驗收的 Stage3 表單與 Stage2 成功的按鈕同步設計，建立僅 `pilot2026/group01/mission3` 可提交的獨立候選頁 `pilot2026-stage3-live-quest.html`。
+- 保留 Stage3 唯讀 `pilot2026-stage3-review.html`；不修改 Stage1/2、QR、教師後台、原始網站或 Firestore 成果。
+- 同時新增部署前的獨立 `pilot2026-stage3` Functions 封裝與 Storage 單一新增權限比對測試，**只是候選，不表示已部署**。
+
+### 在 Cloud Shell 僅建置及測試，不部署
+```bash
+cd ~/taipei_cultural_adventure
+git pull origin feature/firebase-sync
+npm run test:pilot2026-stage3-live-preview
+npm run test:pilot2026-stage3-release-preflight
+npm run test:combined-five-preview
+```
+前兩項預期各 5 與 4 個測試、零失敗；若有失敗先停止，不得部署。
+
+### 開放真實提交前的必要條件
+1. Firebase Console 核對**線上啟用**的 Storage Rules，確認與第二關規則一致，且僅增加 `pilot2026/group01/mission3` 的 `photo1.jpg`、`photo2.jpg` 上傳權限；保留第一二關與 demo 的授權、覆寫/刪除限制。
+2. 單獨部署 `pilot2026-stage3` Functions codebase，不能覆蓋 `pilot2026-stage1`、`pilot2026-stage2` 或原有 `pilot-submit`。部署前需獨立安裝套件並審查 Functions 清單，任何移除其他函式的提示都應中止。
+3. Cloud Function 和 Storage 規則確認已上線後，才可以把 Stage3 live candidate 發布到 `auth-test` 預覽頻道，使用 TEST02 同一瀏覽器進行**一次**非個資照片提交。
+4. 確認 Firestore 2／5→3／5，教師後台可看見餐廳名稱與兩張 JPEG；先前兩關仍完整，第四五關繼續未完成。
