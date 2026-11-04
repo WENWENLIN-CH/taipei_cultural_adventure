@@ -1,4 +1,5 @@
-// CANDIDATE ONLY for pilot2026 stage2. NOT DEPLOYED.\n// Preserve demo2026 and pilot2026/group01/mission1; add only mission2 photo slots.
+// CANDIDATE ONLY for pilot2026 stage2. NOT DEPLOYED.
+// Preserve demo2026 and pilot2026/group01/mission1; add only mission2 photo slots.
 // One fixed filename per authenticated member, mission and photo slot.
 rules_version = '2';
 service firebase.storage {
