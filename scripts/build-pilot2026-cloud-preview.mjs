@@ -30,4 +30,5 @@ js=once(js,'const STORAGE_KEY = "taipeiCulturalQuestFiveReadOnlyV1";',
 await writeFile(join(dir,"pilot2026-cloud-quest.html"),html);
 await writeFile(join(dir,"pilot2026-cloud-quest.js"),js);
 await copyFile(join(root,"pilot2026-cloud-bootstrap.js"),join(dir,"pilot2026-cloud-bootstrap.js"));
+await copyFile(join(root,"pilot2026-stage1-submission.js"),join(dir,"pilot2026-stage1-submission.js"));
 console.log("Built pilot2026-cloud-quest.html: Firebase-connected isolated student page, submissions DISABLED. NOT DEPLOYED.");
