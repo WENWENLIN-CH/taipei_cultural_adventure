@@ -21,3 +21,29 @@
 
 ## 本次交付
 僅程式碼候選、權限限制、單元測試和規劃文件，不會新增雲端資源、發布網站或修改第一關成果。
+
+
+## Stage2 真實提交候選頁（建置完成，尚未發布）
+- 新增 `scripts/build-pilot2026-stage2-live-preview.mjs`，從第二關唯讀版產生獨立 `pilot2026-stage2-live-quest.html`。
+- 第二關候選頁獨立使用 `pilot2026-stage2-live-bootstrap.js`、`pilot2026-stage2-live-quest.js` 與 `pilot2026-stage2-submission.js`，只允許 `pilot2026/group01/mission2`，且確認五關快照同步後才開放按鈕。
+- 現有 `pilot2026-stage2-review.html` 仍停用提交；原 QR、第一關頁、教師頁、GitHub Pages `main` 不變。
+- 此候選版即使在 Hosting 上發布，**在 Stage2 Callable Function 與 Storage live rules 上線前也不能提交成功**。務必按順序完成以下安全檢查。
+
+### 第一步：只在 Cloud Shell 本機建置和測試，不部署
+```bash
+cd ~/taipei_cultural_adventure
+git pull origin feature/firebase-sync
+npm run test:pilot2026-stage2-live-preview
+npm run test:pilot2026-stage2-review-preview
+npm run test:pilot2026-stage2-emulator
+npm run test:pilot2026-storage-stage2
+npm run test:combined-five-preview
+```
+測試任一項失敗，停止。不得直接使用 `firebase deploy` 更新所有資源。
+
+### 第二步：正式發布前的個別審核
+1. 確認線上 Storage 規則與候選規則的差異**只有**新增 group01 mission2 四張 JPEG 的 create 權限；保留原有所有拒絕條件、原 demo2026 與 Stage1 權限。
+2. 確認獨立 Functions 部署程式碼只匯出 `submitPilot2026Stage2`，不覆寫現有 `submitPilot2026Stage1` 或 `submitGroupMission`。使用獨立 codebase 和 `--only functions:<codebase>` 限定部署。
+3. Functions、Storage 都經明確審核通過且已部署後，才更新既有 `auth-test` Hosting 預覽頻道，且只給 TEST02 測試。
+4. **只用非個資的四張測試照片**。提交一次後查看 Firestore 小組進度從 1／5 到 2／5，教師後台確認四種語言和四張照片。不得刪除重置關卡來重試。
+5. 不要在任何文件、GitHub 或對話中張貼學生 QR 的私人邀請碼。
