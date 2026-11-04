@@ -2,9 +2,9 @@
 
 ## 目前已確認
 - `pilot2026/group01` 第三關由 TEST02 手機成功提交餐廳名稱與兩張照片，學生端共同進度由 2／5 更新為 **3／5**。
-- 第三關教師後台仍待人工驗收（餐廳名稱、兩張照片及前三關完整性）。
+- 第三關教師後台已通過五項人工驗收：3／5、餐廳名稱及兩張照片、第一二關原有成果、第四五關未完成與終極謎題鎖定。
 - 必須保留第一至第三關 Firestore 文件及照片、TEST01／TEST02 匿名身份、原 QR Code 加入與恢復機制、教師後台、最後圓山／酒泉街謎題；不得重設或重新發行學生身份。
-- 本文件**只規劃，不建置、發布或開放第四關**。
+- 第四關目前已新增 **候選程式及唯讀預覽、模擬器測試**；未部署或開放第四關，線上資料不變。
 
 ## 第四關原始任務（沿用 script.js 定義）
 - 名稱：`🌍 環遊世界美食家`；`missionId:4`。
@@ -29,3 +29,26 @@
 - 同組同關只能建立一次；不可覆寫前三關。
 - 禁止將個人 QR 邀請碼、學生資訊、可辨識的人臉及真實照片放入 GitHub。
 - 各階段必須先通過 Node 測試和 Firebase 本機模擬器測試；不要使用無範圍的 `firebase deploy`。
+
+## 第四關第一階段已新增候選檔案（未部署）
+- `functions/pilot2026-stage4-authorization.js`、`functions/pilot2026-stage4-entry.js`、`pilot2026-stage4-submission.js`
+- `docs/storage-pilot2026-stage4-candidate.rules`、`firebase.pilot2026-stage4-emulator.json`、`firebase.pilot2026-stage4-functions.json`
+- `scripts/build-pilot2026-stage4-review-preview.mjs`、`scripts/build-pilot2026-stage4-functions.mjs`
+- `tests/pilot2026-stage4-candidate.test.mjs`、`tests/pilot2026-storage-stage4.test.mjs`、`functions/test/pilot2026-stage4-emulator.test.mjs`、`tests/pilot2026-stage4-release-preflight.test.mjs`
+- `scripts/build-combined-five-preview.mjs` 增加第四關只讀頁 `pilot2026-stage4-review.html`，仍與既有 QR、前三關與教師後台共存。
+- 尚無第四關真實提交頁；Storage 與 Stage4 Callable 均**未部署**。
+
+### 第一批 Cloud Shell 驗證
+```bash
+cd ~/taipei_cultural_adventure
+git pull origin feature/firebase-sync
+npm run test:pilot2026-stage4-candidate
+npm run test:pilot2026-stage4-release-preflight
+npm run test:combined-five-preview
+```
+若上述通過，再進行 Firebase 模擬器測試：
+```bash
+npm run test:pilot2026-storage-stage4
+npm run test:pilot2026-stage4-emulator
+```
+所有步驟均不得使用實際線上資料，不要執行 `firebase deploy`。等唯讀頁在同源 `auth-test` 預覽頻道發布並完成 TEST02 手機驗收後，再審核下一階段。
