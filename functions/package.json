@@ -17,7 +17,8 @@
     "test:isolated-pilot": "node --test test/isolated-pilot-flow.test.mjs",
     "test:pilot2026-authorization": "node --test test/pilot2026-authorization.test.mjs",
     "test:pilot2026-stage1": "node --test test/pilot2026-stage1-emulator.test.mjs",
-    "test:pilot2026-seed-plan": "node --test test/pilot2026-seed-plan.test.mjs"
+    "test:pilot2026-seed-plan": "node --test test/pilot2026-seed-plan.test.mjs",
+    "test:pilot2026-stage2": "node --test test/pilot2026-stage2-emulator.test.mjs"
   },
   "dependencies": {
     "firebase-admin": "^13.0.0",
