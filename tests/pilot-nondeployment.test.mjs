@@ -10,10 +10,15 @@ test("production callable remains strictly demo2026/group01/mission3",()=>{
  assert.ok(fn.includes("!process.env.FIRESTORE_EMULATOR_HOST"));
  assert.ok(!fn.includes('PROPOSED_ISOLATED_PILOT'),"Proposed pilot must NOT be activated");
 });
-test("server handler still rejects every non-demo2026 activity",()=>{
+test("server handler defaults to demo2026; proposed pilot requires explicit emulator injection",()=>{
  const fn=read("functions/submission-handler.js");
- assert.ok(fn.includes('input.activityId!=="demo2026"'));
- assert.ok(!fn.includes("pilot2026"));
+ const index=read("functions/index.js");
+ assert.ok(fn.includes('emulatorPilotScope=null'),"Default must not activate a pilot scope");
+ assert.ok(fn.includes('} else if(input.activityId!=="demo2026"){'),"Default must reject other activities");
+ assert.ok(fn.includes('process.env.GCLOUD_PROJECT!=="demo-taipei-isolated-pilot"'),"Pilot scope must require dedicated emulator project");
+ assert.ok(fn.includes('process.env.FIRESTORE_EMULATOR_HOST===undefined'),"Pilot scope must require Firestore emulator");
+ assert.ok(fn.includes('process.env.FIREBASE_STORAGE_EMULATOR_HOST===undefined'),"Pilot scope must require Storage emulator");
+ assert.ok(!index.includes("emulatorPilotScope:"),"Production callable must not inject a pilot scope");
 });
 test("read-only five-quest UI stays disabled; mission3 pilot stays scoped",()=>{
  const boot=read("cloud-quest-bootstrap.js");
