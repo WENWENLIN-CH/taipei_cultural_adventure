@@ -5,6 +5,7 @@ import {getFirestore,FieldValue} from "firebase-admin/firestore";
 import {getStorage} from "firebase-admin/storage";
 import {createSubmissionHandler} from "./submission-handler.js";
 import {PILOT2026_STAGE5,allowStage5Candidate} from "./pilot2026-stage5-authorization.js";
+import {requireStage4Completed} from "./pilot2026-stage5-prerequisite.js";
 if(!getApps().length)initializeApp();
 const project=process.env.GCLOUD_PROJECT||process.env.GCP_PROJECT||"";
 const handler=createSubmissionHandler({
@@ -16,9 +17,10 @@ const handler=createSubmissionHandler({
 });
 export const submitPilot2026Stage5=onCall({
  region:"asia-east1",memory:"256MiB",maxInstances:1,timeoutSeconds:60
-},request=>{
+},async request=>{
  if(project!=="taipei-cultural-adventure"||!allowStage5Candidate(request.data))
   throw new HttpsError("permission-denied","第五關試辦權限不符");
+ await requireStage4Completed({db:getFirestore(),data:request.data,makeError:(code,message)=>new HttpsError(code,message)});
  return handler({
   uid:request.auth?.uid,
   anonymous:request.auth?.token.firebase?.sign_in_provider==="anonymous",
