@@ -20,3 +20,6 @@ cors.json
 serviceAccountKey.json
 *.pem
 *.p12
+
+# Private generated QR codes contain single-use invitation secrets
+.private-qrcodes/
