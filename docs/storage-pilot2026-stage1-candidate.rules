@@ -30,7 +30,7 @@ service firebase.storage {
         && request.auth.uid == uploaderUid
         && member(activityId, groupId)
         // Existing demo activity remains unchanged; new pilot is stage-1 only.
-        && (activityId != "pilot2026" || (groupId == "group01" && missionId == "1"))
+        && (activityId == "demo2026" || (activityId == "pilot2026" && groupId == "group01" && missionId == "1"))
         && photoKey(missionId, filename)
         && request.resource.size > 0
         && request.resource.size <= 1024 * 1024
