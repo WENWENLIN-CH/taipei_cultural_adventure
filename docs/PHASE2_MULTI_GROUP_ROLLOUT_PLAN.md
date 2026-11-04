@@ -70,3 +70,31 @@
 
 ## 驗收總原則
 每項結果需同時有：自動化 emulator 測試（包含拒絕未授權）、學生手機驗收、教師後台驗收、既有 pilot2026 回歸檢查。任何一步失敗，**不進入下一個部署閘門**。
+
+## 第二階段 A — 第一批實作紀錄（僅 GitHub，未部署）
+
+已新增：
+- `phase2-rehearsal-manifest.js`：`phase2sandbox`、`group01`–`group03`、每組 2 人、五關；**projectId 強制 demo 開頭**，禁止把 `pilot2026`／`demo2026` 當作新演練活動。
+- `scripts/phase2-three-groups-dry-run.mjs`：只列出群組和六位模擬學生的預定路徑，**完全不產生雲端寫入**。
+- `docs/storage-phase2-rehearsal-emulator.rules`：只用於本機模擬器，繼承 Stage5 已驗收的照片欄位限制，同時讓 `phase2sandbox` 的三組通過；**不得發布到線上**。
+- `firebase.phase2-rehearsal-emulator.json`：只啟動本機 Firestore／Storage。
+- `tests/phase2-manifest.test.mjs`：活動隔離與 dry-run 內容。
+- `tests/phase2-three-groups-rules.test.mjs`：三組六位模擬學生的讀取、各組照片上傳、拒絕跨組、不可自行建立任務完成紀錄、保護原 `pilot2026` 的權限測試。
+
+### 第一批 Cloud Shell 指令（不部署）
+```bash
+cd ~/taipei_cultural_adventure
+git pull origin feature/firebase-sync
+npm run phase2:dry-run
+npm run test:phase2-manifest
+npm run test:phase2-three-groups-rules
+```
+
+預期 manifest 測試通過 4 項，Storage/Firestore 模擬器測試通過 6 項；實際結果以 Cloud Shell 為準。本批僅測試**規則與資料隔離**，尚未完成真正的「三組各自五關 Cloud Function 提交」整合測試，也未建立正式活動或可供學生連入的正式網站。
+
+### 下一批仍需開發
+1. 可設定正式活動 ID 與群組清單的**正式版 Callable**，仍須伺服器授權與各關順序驗證，原 `pilot2026` Functions 不得修改。
+2. 六位匿名學生的邀請碼交易／同組進度同步、五關端到端模擬器測試。
+3. 教師後台活動切換與多組實機驗收、現場網路異常復原、資料保護與正式發布。
+
+此批只修改 `feature/firebase-sync` 開發分支，**絕不可使用 `firebase deploy` 或替換線上 Firestore/Storage 規則**。
