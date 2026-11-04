@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>台北島｜教師成果檢視（測試）</title>
+<style>
+:root{font-family:system-ui,-apple-system,"Noto Sans TC",sans-serif;color:#17324a;background:#f0f8fb}
+*{box-sizing:border-box}body{margin:0}header{background:#17324a;color:white;padding:18px max(18px,calc((100vw - 1000px)/2));}
+main{max-width:1000px;margin:24px auto;padding:0 16px 50px}
+.card{background:white;border:1px solid #d2e3ec;border-radius:17px;padding:20px;margin:14px 0}
+h1{font-size:1.45rem;margin:0}h2{font-size:1.18rem}p{line-height:1.6}label{display:block;margin:12px 0 5px}
+input,button{font:inherit}input{width:100%;max-width:480px;padding:12px;border:1px solid #9eb9c7;border-radius:10px}
+button{border:0;border-radius:10px;background:#1769ac;color:white;padding:11px 17px;cursor:pointer;margin:8px 8px 4px 0}button:disabled{opacity:.5;cursor:not-allowed}
+.muted{color:#587082}.error{color:#9e2436}.notice{background:#eef5fa;border-radius:10px;padding:12px;white-space:pre-wrap}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.group{border:1px solid #cbdee7;border-radius:12px;padding:14px}ul{padding-left:20px}
+.photos{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}
+.photos img{width:100%;max-height:250px;object-fit:contain;background:#edf4f7;border-radius:8px}
+.answer{overflow-wrap:anywhere}.hidden{display:none}small{color:#587082}
+</style></head>
+<body><header><h1>🏝️ 台北島｜教師成果檢視</h1><small style="color:#d7e9f0">測試版 · 僅讀取 · 需要教師資料庫授權</small></header>
+<main>
+<section class="card" id="loginPanel">
+<h2>教師登入</h2>
+<p class="muted">請使用已建立 Firebase Authentication 帳號、且在 teacherAccess 中核准的教師身分。一般學生或未授權帳號無法瀏覽成果。</p>
+<form id="loginForm"><label for="email">教師電子郵件</label><input id="email" type="email" autocomplete="username" required>
+<label for="password">密碼</label><input id="password" type="password" autocomplete="current-password" required>
+<div><button type="submit" id="loginButton">登入並確認教師權限</button></div></form>
+<p class="notice" id="loginStatus" role="status">尚未登入教師帳號</p>
+</section>
+<section class="card hidden" id="board">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><h2>demo2026 · 小組進度</h2><button id="logoutButton" type="button">教師登出</button></div>
+<p id="boardStatus" class="notice" role="status">正在讀取…</p>
+<div id="groupGrid" class="grid" aria-live="polite"></div>
+</section>
+<section class="card hidden" id="details">
+<h2 id="detailHeading">關卡成果</h2>
+<p id="detailStatus" class="notice" role="status"></p>
+<div id="missionDetails"></div>
+</section>
+<p class="muted"><small>本頁只用於測試，不顯示邀請碼、學生 UID 或建立／修改／刪除成果的操作。請勿在共享裝置儲存教師密碼。</small></p>
+</main><script type="module" src="teacher-dashboard.js"></script></body></html>
