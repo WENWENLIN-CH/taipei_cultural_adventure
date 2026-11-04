@@ -34,7 +34,8 @@
     "pilot2026:dry-run": "node functions/scripts/prepare-pilot2026-stage1.mjs",
     "test:pilot2026-storage-stage1": "firebase emulators:exec --project demo-taipei-pilot-stage1-rules --config firebase.pilot2026-stage1-emulator.json --only firestore,storage \"node --test tests/pilot2026-storage-stage1.test.mjs\"",
     "test:mobile-gallery": "node --test tests/mobile-gallery-picker.test.mjs",
-    "test:pilot2026-functions-packaging": "node --test tests/pilot2026-functions-packaging.test.mjs"
+    "test:pilot2026-functions-packaging": "node --test tests/pilot2026-functions-packaging.test.mjs",
+    "test:pilot2026-stage1-live-preview": "node --test tests/pilot2026-stage1-live-preview.test.mjs"
   },
   "devDependencies": {
     "@firebase/rules-unit-testing": "^5.0.0",
