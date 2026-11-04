@@ -29,7 +29,10 @@ test("pilot2026 client strictly refuses live submission and other-activity invit
  assert.ok(boot.includes('invite.data().activityId!==ACTIVITY_ID'));
  assert.ok(boot.indexOf('invite.data().activityId!==ACTIVITY_ID')<boot.indexOf('await joinByInvitation(token)'),"Reject other activity before claiming code");
  assert.ok(boot.includes('window.cloudQuestMaySubmit=id=>SUBMISSIONS_ENABLED'));
- assert.ok(boot.includes('submitOriginalMission({missionId,formData,onProgress:notice})'));
+ assert.ok(boot.includes('submitOriginalMission({missionId,formData,onProgress:notice,submitMission:submitPilot2026Stage1})'));
+ assert.ok(boot.includes('const STAGE1_GROUP="group01";'));
+ assert.ok(boot.includes("const STAGE1_MISSION=1;"));
+ assert.ok(read(dir+"pilot2026-stage1-submission.js").includes('"submitPilot2026Stage1"'));
  assert.ok(boot.includes('readyCount===5'));
 });
 test("teacher can select either activity in read-only interface",()=>{
