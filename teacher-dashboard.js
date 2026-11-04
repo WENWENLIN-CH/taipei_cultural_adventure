@@ -130,12 +130,25 @@ async function showGroup(groupId,name){
        try{
          const blob=await getBlob(ref(storage,path),2*1024*1024);
          if(generation!==currentGeneration)return;
-         if(blob.type!=="image/jpeg"){imageStatus.textContent="不是 JPEG";return;}
-         const url=URL.createObjectURL(blob);
+         // Cloud Storage may return application/octet-stream or an empty MIME.
+         // Validate JPEG signature instead of trusting a response Content-Type.
+         const signature=new Uint8Array(await blob.slice(0,3).arrayBuffer());
+         if(generation!==currentGeneration)return;
+         if(blob.size<4 || signature[0]!==0xff || signature[1]!==0xd8 || signature[2]!==0xff){
+           imageStatus.textContent="檔案內容不是有效的 JPEG 開頭，請檢查 Storage 原檔";
+           return;
+         }
+         const jpeg=new Blob([blob],{type:"image/jpeg"});
+         const url=URL.createObjectURL(jpeg);
          activeUrls.add(url);
          const img=document.createElement("img");
-         img.src=url;img.alt=`第${i+1}關 ${photoKey} 測試照片`;
-         imageStatus.replaceWith(img);
+         img.alt=`第${i+1}關 ${photoKey} 測試照片`;
+         img.onload=()=>{if(generation===currentGeneration)imageStatus.replaceWith(img);};
+         img.onerror=()=>{
+           if(generation===currentGeneration)imageStatus.textContent="照片無法解碼，請檢查 Storage 原檔";
+           URL.revokeObjectURL(url);activeUrls.delete(url);
+         };
+         img.src=url;
        }catch(e){if(generation===currentGeneration)imageStatus.textContent=errorMessage(e);}
      })();
    }
