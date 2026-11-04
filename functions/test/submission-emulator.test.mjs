@@ -45,4 +45,16 @@ try{
  await test("合法提交建立一筆共同成果、保留提交者與伺服器時間",async()=>{await reset();const result=await handler({uid:"alice",anonymous:true,data:payload()});assert.equal(result.status,"completed");const snap=await mission.get();assert.equal(snap.data().submittedByUid,"alice");assert.equal(snap.data().submittedByCode,"S01");assert.equal(snap.data().status,"completed");assert.ok(snap.data().submittedAt.toDate() instanceof Date);});
  await test("同一關不可重複提交",async()=>{await assert.rejects(handler({uid:"bob",anonymous:true,data:payload()}),{code:"already-exists"});});
  await test("兩位組員同時提交，只有一筆成功",async()=>{await reset();const results=await Promise.allSettled(["alice","bob"].map(uid=>handler({uid,anonymous:true,data:payload()})));assert.equal(results.filter(x=>x.status==="fulfilled").length,1);assert.equal(results.filter(x=>x.status==="rejected").length,1);assert.equal((await mission.get()).exists,true);});
+ await test("被教師撤銷的舊匿名身分不得再提交，即使照片還在",async()=>{
+   await reset();
+   await db.doc(base+"/members/alice").update({revoked:true});
+   await assert.rejects(handler({uid:"alice",anonymous:true,data:payload()}),{code:"permission-denied"});
+   assert.equal((await mission.get()).exists,false);
+ });
+ await test("已撤銷組員不能提交，但同組未撤銷成員仍可提交",async()=>{
+   await reset();
+   const result=await handler({uid:"bob",anonymous:true,data:payload()});
+   assert.equal(result.status,"completed");
+   assert.equal((await mission.get()).data().submittedByUid,"bob");
+ });
 }finally{await deleteApp(app);}
