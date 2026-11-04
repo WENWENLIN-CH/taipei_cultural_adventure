@@ -32,7 +32,7 @@ js=once(js,"${window.cloudQuestCompleted?.(m.id)?\"✓ 已完成此任務\":\"�
 js=once(js,"    try {\n      await window.cloudQuestSubmit(m.id, ms.data);\n      alert(\"伺服器已接收成果，請等待共享進度更新。\");\n      showDashboard();\n    } catch(err) { alert(\"尚未完成任務：\"+err.message); }","    const btn=document.getElementById(\"completeMissionBtn\");\n    if(!window.cloudQuestMaySubmit?.(m.id)) {alert(\"此關目前尚未開放提交\");return;}\n    if(!confirm(\"確認代表第一組提交第三關共同成果？提交後不可自行修改，並會上傳 2 張照片。\"))return;\n    btn.disabled=true;\n    const oldLabel=btn.textContent;\n    btn.textContent=\"照片上傳與成果驗證中…\";\n    try {\n      await window.cloudQuestSubmit(m.id, ms.data);\n      alert(\"伺服器已接收成果，請等待小組同步更新。\");\n      showDashboard();\n    } catch(err) {alert(\"無法確認提交成功。請先檢查小組進度再重試。原因：\"+err.message);}\n    finally {if(btn.isConnected){btn.disabled=!window.cloudQuestMaySubmit?.(m.id);btn.textContent=oldLabel;}}","pilot UX");
 await writeFile(join(output,"cloud-quest.html"),html);
 await writeFile(join(output,"cloud-quest.js"),js);
-for(const file of ["style.css","cloud-quest-bootstrap.js","firebase-auth.js","firebase-config.js","group-service.js","mission-cloud-flow.js","mission-form-adapter.js","photo-upload.js","photo-retry-policy.js","mission-submission.js","mission-schema.js"]){
+for(const file of ["style.css","cloud-quest-bootstrap.js","firebase-auth.js","firebase-config.js","group-service.js","mission-cloud-flow.js","mission-upload-recovery.js","mission-form-adapter.js","photo-upload.js","photo-retry-policy.js","mission-submission.js","mission-schema.js"]){
   await copyFile(join(root,file),join(output,file));
 }
 console.log("Built isolated cloud-quest.html preview: shared Firestore progress, submissions disabled. Original index.html unchanged.");
