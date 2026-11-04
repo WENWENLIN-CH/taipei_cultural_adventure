@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import assert from "node:assert/strict";
 import { initializeTestEnvironment, assertFails, assertSucceeds } from "@firebase/rules-unit-testing";
-import { doc, getDoc, setDoc, writeBatch, runTransaction, serverTimestamp } from "firebase/firestore";
+import { doc, getDoc, collection, getDocs, setDoc, writeBatch, runTransaction, serverTimestamp } from "firebase/firestore";
 
 const env = await initializeTestEnvironment({
   projectId: "demo-taipei-quest",
@@ -44,6 +44,13 @@ try {
   await check("成員不可查看別組",()=>assertFails(getDoc(doc(alice,groupB))));
   await check("成員可查看自己的關卡",()=>assertSucceeds(getDoc(doc(alice,groupA+"/missions/1"))));
   await check("成員不可查看別組關卡",()=>assertFails(getDoc(doc(bob,groupA+"/missions/1"))));
+  await check("授權教師可以列出所有小組",async()=>{
+    const docs=await assertSucceeds(getDocs(collection(teacher,"activities/demo2026/groups")));
+    assert.equal(docs.size,2);
+  });
+  await check("學生不能列出其他小組",()=>assertFails(getDocs(collection(alice,"activities/demo2026/groups"))));
+  await check("未授權帳號不能列出小組",()=>assertFails(getDocs(collection(charlie,"activities/demo2026/groups"))));
+  await check("未登入者不能列出小組",()=>assertFails(getDocs(collection(anon,"activities/demo2026/groups"))));
   await check("教師可查看兩組關卡",async()=>{
     await assertSucceeds(getDoc(doc(teacher,groupA+"/missions/1")));
     await assertSucceeds(getDoc(doc(teacher,groupB+"/missions/1")));
