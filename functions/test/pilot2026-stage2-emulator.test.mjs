@@ -53,8 +53,24 @@ try{
   await assert.rejects(submit(input(),"test02",false),{code:"unauthenticated"});
   await assert.rejects(submit(input(),"other"),{code:"permission-denied"});
   await assert.rejects(submit(input({groupId:"group02"})),{code:"permission-denied"});
-  await assert.rejects(submit(input({missionId:1})),{code:"permission-denied"});
-  await assert.rejects(submit(input({missionId:3})),{code:"permission-denied"});
+  // Build VALID payloads for other missions. If we merely change missionId
+  // while keeping mission2's four photo slots, the schema correctly rejects
+  // invalid-argument before the authorization guard is reached.
+  const mission1Payload=input({
+   missionId:1,answers:{location:"測試地點"},
+   photoPaths:{photo1:`${base}/missions/1/test02/photo1.jpg`}
+  });
+  const mission3Payload=input({
+   missionId:3,answers:{restaurant:"測試餐廳"},
+   photoPaths:{
+    photo1:`${base}/missions/3/test02/photo1.jpg`,
+    photo2:`${base}/missions/3/test02/photo2.jpg`
+   }
+  });
+  await assert.rejects(submit(mission1Payload),{code:"permission-denied"});
+  await assert.rejects(submit(mission3Payload),{code:"permission-denied"});
+  // A malformed cross-mission payload is still correctly rejected as invalid.
+  await assert.rejects(submit(input({missionId:1})),{code:"invalid-argument"});
   await assert.rejects(submit(input({activityId:"demo2026"})),{code:"permission-denied"});
   assert.equal((await mission.get()).exists,false);
  });
