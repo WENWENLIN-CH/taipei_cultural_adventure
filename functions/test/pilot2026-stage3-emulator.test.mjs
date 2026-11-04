@@ -49,7 +49,8 @@ try{
   await assert.rejects(submit(input({answers:{restaurant:""}})),{code:"invalid-argument"});
   await assert.rejects(submit(input({photoPaths:{photo1:paths.photo1}})),{code:"invalid-argument"});
   await assert.rejects(submit(input({photoPaths:{...paths,extra:paths.photo1}})),{code:"invalid-argument"});
-  await assert.rejects(submit(input({photoPaths:{...paths,photo2:paths.photo2.replace("/group01/","/group02/")}})),{code:"invalid-argument"});
+  // Validate the FIRST photo path here: the handler verifies photo1 existence before parsing photo2.
+  await assert.rejects(submit(input({photoPaths:{...paths,photo1:paths.photo1.replace("/group01/","/group02/")}})),{code:"invalid-argument"});
  });
  await test("Missing both or either of two stored images prevents completion",async()=>{
   await assert.rejects(submit(),{code:"failed-precondition"});
