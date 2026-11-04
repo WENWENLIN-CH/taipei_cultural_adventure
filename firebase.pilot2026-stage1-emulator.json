@@ -1,0 +1,21 @@
+{
+  "firestore": {
+    "rules": "docs/firestore-group-draft.rules"
+  },
+  "storage": {
+    "rules": "docs/storage-pilot2026-stage1-candidate.rules"
+  },
+  "emulators": {
+    "firestore": {
+      "host": "127.0.0.1",
+      "port": 8080
+    },
+    "storage": {
+      "host": "127.0.0.1",
+      "port": 9199
+    },
+    "ui": {
+      "enabled": false
+    }
+  }
+}
