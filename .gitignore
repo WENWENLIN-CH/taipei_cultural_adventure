@@ -23,3 +23,6 @@ serviceAccountKey.json
 
 # Private generated QR codes contain single-use invitation secrets
 .private-qrcodes/
+
+# Isolated generated Stage2 Functions deployment package
+.firebase-pilot2026-stage2-functions/
