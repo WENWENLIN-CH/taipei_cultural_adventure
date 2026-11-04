@@ -26,3 +26,6 @@ serviceAccountKey.json
 
 # Isolated generated Stage2 Functions deployment package
 .firebase-pilot2026-stage2-functions/
+
+# Generated independent Stage3 callable package
+.firebase-pilot2026-stage3-functions/
