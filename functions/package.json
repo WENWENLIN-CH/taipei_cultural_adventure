@@ -20,7 +20,8 @@
     "test:pilot2026-seed-plan": "node --test test/pilot2026-seed-plan.test.mjs",
     "test:pilot2026-stage2": "node --test test/pilot2026-stage2-emulator.test.mjs",
     "test:pilot2026-stage3": "node --test test/pilot2026-stage3-emulator.test.mjs",
-    "test:pilot2026-stage4": "node --test test/pilot2026-stage4-emulator.test.mjs"
+    "test:pilot2026-stage4": "node --test test/pilot2026-stage4-emulator.test.mjs",
+    "test:pilot2026-stage5": "node --test test/pilot2026-stage5-emulator.test.mjs"
   },
   "dependencies": {
     "firebase-admin": "^13.0.0",
