@@ -7,7 +7,7 @@
 main{max-width:1000px;margin:24px auto;padding:0 16px 50px}
 .card{background:white;border:1px solid #d2e3ec;border-radius:17px;padding:20px;margin:14px 0}
 h1{font-size:1.45rem;margin:0}h2{font-size:1.18rem}p{line-height:1.6}label{display:block;margin:12px 0 5px}
-input,button{font:inherit}input{width:100%;max-width:480px;padding:12px;border:1px solid #9eb9c7;border-radius:10px}
+input,button,select{font:inherit}select{padding:10px;border:1px solid #9eb9c7;border-radius:10px;background:white;color:#17324a}input{width:100%;max-width:480px;padding:12px;border:1px solid #9eb9c7;border-radius:10px}
 button{border:0;border-radius:10px;background:#1769ac;color:white;padding:11px 17px;cursor:pointer;margin:8px 8px 4px 0}button:disabled{opacity:.5;cursor:not-allowed}
 .muted{color:#587082}.error{color:#9e2436}.notice{background:#eef5fa;border-radius:10px;padding:12px;white-space:pre-wrap}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
@@ -27,7 +27,9 @@ button{border:0;border-radius:10px;background:#1769ac;color:white;padding:11px 1
 <p class="notice" id="loginStatus" role="status">尚未登入教師帳號</p>
 </section>
 <section class="card hidden" id="board">
-<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><h2>demo2026 · 小組進度</h2><button id="logoutButton" type="button">教師登出</button></div>
+<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><h2 id="boardHeading">demo2026 · 小組進度</h2><button id="logoutButton" type="button">教師登出</button></div>
+<label for="activitySelector">檢視活動</label><select id="activitySelector" aria-label="選擇活動"><option value="demo2026">demo2026｜既有測試</option><option value="pilot2026">pilot2026｜獨立試辦（未啟用）</option></select>
+<p class="muted">切換活動只會讀取已授權的成果，不會建立小組、上傳照片或改動任何過關紀錄。</p>
 <p id="boardStatus" class="notice" role="status">正在讀取…</p>
 <div id="groupGrid" class="grid" aria-live="polite"></div>
 </section>
