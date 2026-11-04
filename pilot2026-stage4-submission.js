@@ -1,0 +1,15 @@
+// Stage4 isolated client CANDIDATE. No live student page imports this.
+import {getFunctions,httpsCallable} from "https://www.gstatic.com/firebasejs/13.1.0/firebase-functions.js";
+import {auth} from "./firebase-auth.js";
+import {resumeGroup} from "./group-service.js";
+import {validateSubmission} from "./mission-schema.js";
+export async function submitPilot2026Stage4({missionId,answers,photoPaths}){
+ if(!auth?.currentUser?.isAnonymous)throw Error("請先使用學生匿名身分登入");
+ const group=await resumeGroup();
+ if(group?.activityId!=="pilot2026"||group?.groupId!=="group01"||Number(missionId)!==4)
+  throw Error("僅允許 pilot2026 第一組第四關受控測試");
+ validateSubmission(4,answers,photoPaths);
+ return (await httpsCallable(getFunctions(auth.app,"asia-east1"),"submitPilot2026Stage4")({
+  ...group,missionId:4,answers,photoPaths
+ })).data;
+}
