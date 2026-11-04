@@ -34,7 +34,8 @@ service cloud.firestore {
       allow list, create, update, delete: if false;
       match /groups/{groupId} {
         allow get: if isMember(activityId,groupId) || isTeacher();
-        allow list, create, update, delete: if false;
+        allow list: if isTeacher();
+        allow create, update, delete: if false;
         match /members/{uid} {
           allow get: if (signedIn() && request.auth.uid == uid) || isTeacher();
           allow list: if isTeacher();
