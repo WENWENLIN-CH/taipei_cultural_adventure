@@ -66,6 +66,9 @@ joinButton.onclick=async()=>{
  joinButton.disabled=true;
  try{
   await studentSignIn();
+  const existing=await resumeGroup();
+  if(existing && existing.activityId!==ACTIVITY_ID)
+    throw Error("目前瀏覽器已加入其他活動，請使用獨立瀏覽器設定檔測試 pilot2026，以免覆寫原有小組快取");
   // Existing one-time invitation transaction validates group membership.
   // A demo2026 invite must NEVER enroll the user through this pilot page.
   const token=inviteInput.value.trim();
