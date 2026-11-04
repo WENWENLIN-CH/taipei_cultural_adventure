@@ -20,6 +20,8 @@ export const submitPilot2026Stage5=onCall({
 },async request=>{
  if(project!=="taipei-cultural-adventure"||!allowStage5Candidate(request.data))
   throw new HttpsError("permission-denied","第五關試辦權限不符");
+ if(!request.auth?.uid || request.auth?.token.firebase?.sign_in_provider!=="anonymous")
+  throw new HttpsError("unauthenticated","請先以學生匿名身分登入");
  await requireStage4Completed({db:getFirestore(),data:request.data,makeError:(code,message)=>new HttpsError(code,message)});
  return handler({
   uid:request.auth?.uid,
