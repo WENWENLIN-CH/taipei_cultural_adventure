@@ -21,7 +21,8 @@
     "test:five-quest-preview": "node tests/five-quest-preview.test.mjs",
     "test:combined-five-preview": "node tests/combined-five-preview.test.mjs",
     "test:three-groups-emulator": "firebase emulators:exec --project demo-taipei-callable --config firebase.callable-emulator.json --only auth,functions,firestore,storage \"npm --prefix functions run test:three-groups\"",
-    "test:pilot-scope": "npm --prefix functions run test:pilot-scope"
+    "test:pilot-scope": "npm --prefix functions run test:pilot-scope",
+    "test:pilot-nondeployment": "node --test tests/pilot-nondeployment.test.mjs"
   },
   "devDependencies": {
     "@firebase/rules-unit-testing": "^5.0.0",
