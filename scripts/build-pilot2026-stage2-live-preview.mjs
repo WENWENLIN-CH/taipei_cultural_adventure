@@ -29,7 +29,7 @@ js=once(js,'確認代表第一組提交第三關共同成果？提交後不可�
  '確認提交第一組第二關的四種語言和 4 張測試照片嗎？成功後小組成果不可自行修改。',"confirm");
 js=once(js,
  '  document.getElementById("completeMissionBtn").disabled = !window.cloudQuestMaySubmit?.(m.id);',
- '  document.getElementById("completeMissionBtn").dataset.missionId = String(m.id);\\n  document.getElementById("completeMissionBtn").disabled = !window.cloudQuestMaySubmit?.(m.id);',
+ '  document.getElementById("completeMissionBtn").dataset.missionId = String(m.id);\n  document.getElementById("completeMissionBtn").disabled = !window.cloudQuestMaySubmit?.(m.id);',
  "record visible mission for live permission refresh");
 let boot=await read("pilot2026-stage2-review-bootstrap.js");
 boot=once(boot,'import {submitPilot2026Stage1} from "./pilot2026-stage1-submission.js";',
@@ -42,11 +42,11 @@ boot=once(boot,'submitMission:submitPilot2026Stage1','submitMission:submitPilot2
 // must be re-evaluated when readiness changes, without rebuilding form inputs.
 boot=once(boot,
  'function render(){',
- `function refreshStage2Button(){\\n const btn=document.getElementById("completeMissionBtn");\\n if(!btn || !document.getElementById("missionScreen")?.classList.contains("active"))return;\\n const id=Number(btn.dataset.missionId);\\n if(!Number.isInteger(id))return;\\n const eligible=window.cloudQuestMaySubmit(id);\\n btn.disabled=!eligible;\\n btn.textContent=window.cloudQuestCompleted(id)?"✓ 已完成此任務":eligible?"提交小組共同成果":"提交小組共同成果（尚未開放）";\\n}\\nfunction render(){`,
+ `function refreshStage2Button(){\n const btn=document.getElementById("completeMissionBtn");\n if(!btn || !document.getElementById("missionScreen")?.classList.contains("active"))return;\n const id=Number(btn.dataset.missionId);\n if(!Number.isInteger(id))return;\n const eligible=window.cloudQuestMaySubmit(id);\n btn.disabled=!eligible;\n btn.textContent=window.cloudQuestCompleted(id)?"✓ 已完成此任務":eligible?"提交小組共同成果":"提交小組共同成果（尚未開放）";\n}\nfunction render(){`,
  "reactive mission button refresh helper");
 boot=once(boot,
  ' joinButton.disabled=Boolean(group);',
- ' joinButton.disabled=Boolean(group);\\n refreshStage2Button();',
+ ' joinButton.disabled=Boolean(group);\n refreshStage2Button();',
  "refresh on Firestore snapshots");
 boot=once(boot,'模式：第二關介面檢查，所有雲端提交停用',
  '模式：僅 group01 第二關開放提交候選',"status");
