@@ -263,7 +263,9 @@ function photoFieldHTML(key,label,value){
   return `
     <div class="photo-slot">
       <strong>${label}</strong>
-      <input data-key="${key}" type="file" accept="image/*" capture="environment">
+      <label class="photo-picker-label" for="photo-${key}">📷 選擇照片（可從相簿挑選）</label>
+      <input id="photo-${key}" data-key="${key}" type="file" accept="image/*">
+      <small class="photo-picker-tip">可選擇手機相簿裡的照片；部分手機也會提供拍照選項。</small>
       <img class="photo-preview ${value?"":"hidden"}" src="${value||""}" alt="任務照片預覽">
     </div>
   `;
