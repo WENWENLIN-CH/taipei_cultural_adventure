@@ -4,7 +4,10 @@ import {auth,teacherSignIn,logout,watchAuth} from "./firebase-auth.js";
 import {getFirestore,doc,getDoc,collection,getDocs} from "https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js";
 import {getStorage,ref,getBlob} from "https://www.gstatic.com/firebasejs/13.1.0/firebase-storage.js";
 
-const activityId="demo2026";
+const ALLOWED_ACTIVITIES=Object.freeze(["demo2026","pilot2026"]);
+let activityId="demo2026";
+const activitySelector=document.getElementById("activitySelector");
+const boardHeading=document.getElementById("boardHeading");
 const missionNames=["星月偵查員","異國文字解密","Halal 大搜查","環遊世界美食家","揭秘南洋商店"];
 const loginPanel=document.getElementById("loginPanel");
 const loginForm=document.getElementById("loginForm");
@@ -54,6 +57,7 @@ async function authorize(user,generation){
 async function showBoard(user){
  const generation=++currentGeneration;
  revokeImages();
+ boardHeading.textContent=`${activityId} · 小組進度`;
  board.classList.add("hidden");
  details.classList.add("hidden");
  loginStatus.textContent="正在確認教師權限…";
@@ -171,6 +175,16 @@ loginForm.addEventListener("submit",async event=>{
   loginStatus.classList.add("error");
  }finally{loginButton.disabled=false;}
 });
+activitySelector.addEventListener("change",()=>{
+ const selected=activitySelector.value;
+ if(!ALLOWED_ACTIVITIES.includes(selected)){activitySelector.value=activityId;return;}
+ if(selected===activityId)return;
+ activityId=selected;
+ const user=auth?.currentUser;
+ reset();
+ if(user&&!user.isAnonymous)void showBoard(user);
+});
+
 logoutButton.addEventListener("click",async()=>{
  try{await logout();reset();loginPanel.classList.remove("hidden");loginStatus.textContent="教師已登出";}catch(err){loginStatus.textContent=errorMessage(err);}
 });
