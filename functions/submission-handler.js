@@ -3,7 +3,7 @@
 import {PHOTO_KEYS, validateGroupPayload, parseVerifiedPhotoPath} from "./submission-core.js";
 import {permittedByScope} from "./pilot-scope.js";
 
-export function createSubmissionHandler({db,bucket,serverTimestamp,makeError,emulatorPilotScope=null}) {
+export function createSubmissionHandler({db,bucket,serverTimestamp,makeError,emulatorPilotScope=null,approvedLiveScope=null}) {
   const fail=(code,message)=>{throw makeError(code,message);};
   return async function handleSubmission({uid,anonymous,data}) {
     if(!uid || !anonymous) return fail("unauthenticated","請先匿名登入");
@@ -19,6 +19,14 @@ export function createSubmissionHandler({db,bucket,serverTimestamp,makeError,emu
          process.env.GCLOUD_PROJECT!=="demo-taipei-isolated-pilot" ||
          !permittedByScope(emulatorPilotScope,input))
         return fail("permission-denied","僅允許隔離模擬活動");
+    } else if(approvedLiveScope!==null){
+      // Only the separately reviewed pilot callable may supply this scope.
+      // Never passed by the existing functions/index.js entrypoint.
+      if(process.env.FIRESTORE_EMULATOR_HOST ||
+         process.env.FIREBASE_STORAGE_EMULATOR_HOST ||
+         !["taipei-cultural-adventure"].includes(process.env.GCLOUD_PROJECT || process.env.GCP_PROJECT) ||
+         !permittedByScope(approvedLiveScope,input))
+        return fail("permission-denied","只允許經授權的試辦活動與關卡");
     } else if(input.activityId!=="demo2026"){
       return fail("permission-denied","目前只開放測試活動");
     }
