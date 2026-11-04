@@ -6,3 +6,17 @@ node_modules/
 # One-time group invitation credentials (never commit)
 test-invite-codes.txt
 s03-test-invite-code.txt
+
+# Generated isolated Hosting preview builds and local emulator output
+.firebase-pilot-preview/
+firestore-debug.log
+ui-debug.log
+
+# Locally generated CORS experiments (canonical safe config in config/)
+cors.json
+
+# Firebase credentials / Google Cloud service-account private keys
+*-service-account*.json
+serviceAccountKey.json
+*.pem
+*.p12
