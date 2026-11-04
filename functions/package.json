@@ -14,7 +14,9 @@
     "test:four-missions": "node --test test/four-missions-callable.test.mjs",
     "test:three-groups": "node --test test/three-groups-five-missions.test.mjs",
     "test:pilot-scope": "node --test test/pilot-scope.test.mjs",
-    "test:isolated-pilot": "node --test test/isolated-pilot-flow.test.mjs"
+    "test:isolated-pilot": "node --test test/isolated-pilot-flow.test.mjs",
+    "test:pilot2026-authorization": "node --test test/pilot2026-authorization.test.mjs",
+    "test:pilot2026-stage1": "node --test test/pilot2026-stage1-emulator.test.mjs"
   },
   "dependencies": {
     "firebase-admin": "^13.0.0",
