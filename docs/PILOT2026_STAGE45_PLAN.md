@@ -86,3 +86,17 @@ npm run test:combined-five-preview
 - `pilot2026-stage4`、`pilot2026-stage5` Functions 部署
 - auth-test Hosting 重新發布
 - 第四、五關任何正式照片提交
+
+## 部署前強化：第五關伺服器順序檢查
+- 網頁端已限制第四關完成後，才可點擊第五關；另外新增 `functions/pilot2026-stage5-prerequisite.js`，由 Stage5 Callable **在伺服器直接讀取 Firestore 的 `activities/pilot2026/groups/group01/missions/4`**，確認文件存在且 `status==="completed"`，否則回傳 `failed-precondition`。
+- Stage5 Callable 先核實專案／活動／小組／關卡與匿名登入，再檢查第四關，最後才沿用安全照片驗證與單次提交處理。未修改原 Stage1–4 Callables 或 shared handler。
+- Stage5 獨立封裝新增必要 helper；更新模擬器整合測試，分別檢驗第四關不存在、第四關非 completed、以及完成第四關後正常提交。
+- 這項修正需要重新驗證：
+```bash
+cd ~/taipei_cultural_adventure
+git pull origin feature/firebase-sync
+npm run test:pilot2026-stage45-release-preflight
+npm run test:pilot2026-stage5-emulator
+npm run test:pilot2026-stage45-live-preview
+```
+- **發布閘門：上述測試未全數通過前不得部署 Stage4/5 Functions、Storage Rules 或 Hosting live 頁。**
