@@ -14,7 +14,8 @@
     "test:photo-retry": "node --test tests/photo-retry.test.mjs",
     "check:functions-pilot": "node scripts/check-functions-pilot.mjs",
     "test:pilot-preview": "node tests/pilot-preview.test.mjs",
-    "test:same-origin-pilot": "node tests/same-origin-pilot.test.mjs"
+    "test:same-origin-pilot": "node tests/same-origin-pilot.test.mjs",
+    "test:teacher-preview": "node tests/teacher-preview.test.mjs"
   },
   "devDependencies": {
     "@firebase/rules-unit-testing": "^5.0.0",
