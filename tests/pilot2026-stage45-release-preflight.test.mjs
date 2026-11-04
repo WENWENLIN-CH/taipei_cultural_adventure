@@ -25,11 +25,15 @@ test("Each function package exports only its own scoped callable",()=>{
  for(const n of [4,5]){
   const dir=".firebase-pilot2026-stage"+n+"-functions/";
   assert.deepEqual(readdirSync(dir).sort(),["index.js","package.json","pilot-scope.js",
-   "pilot2026-stage"+n+"-authorization.js","submission-core.js","submission-handler.js"]);
+   "pilot2026-stage"+n+"-authorization.js",...(n===5?["pilot2026-stage5-prerequisite.js"]:[]),"submission-core.js","submission-handler.js"]);
   const code=read(dir+"index.js");
   const exports=[...code.matchAll(/export\s+const\s+(\w+)\s*=/g)].map(m=>m[1]);
   assert.deepEqual(exports,["submitPilot2026Stage"+n]);
   assert.ok(code.includes("approvedLiveScope:PILOT2026_STAGE"+n));
+  if(n===5){
+   assert.ok(code.includes("await requireStage4Completed("));
+   assert.ok(read(dir+"pilot2026-stage5-prerequisite.js").includes('snap.data()?.status!=="completed"'));
+  }
   assert.ok(code.includes("allowStage"+n+"Candidate(request.data)"));
   for(const other of [1,2,3,4,5].filter(x=>x!==n))
    assert.ok(!code.includes("submitPilot2026Stage"+other));
