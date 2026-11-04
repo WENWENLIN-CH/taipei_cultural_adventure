@@ -37,6 +37,12 @@ try{
  await test("pilot2026 group01 mission3 rejects upload",()=>assertFails(uploadBytes(pilotRef("group01","3"),image,mime)));
  await test("pilot2026 group02 mission1 rejects upload even for its own member",()=>assertFails(uploadBytes(ref(otherUser.storage(bucket),pilotPath("group02","1","otherPilot","photo1.jpg")),image,mime)));
  await test("pilot2026 wrong uploader cannot create photo",()=>assertFails(uploadBytes(pilotRef("group01","1","photo1.jpg","otherPilot"),image,mime)));
+ await test("unlisted activities cannot upload even when their member document exists",async()=>{
+  await env.withSecurityRulesDisabled(async ctx=>{
+   await setDoc(doc(ctx.firestore(),"activities/unknown2026/groups/group01/members/pilotStudent"),{studentCode:"X"});
+  });
+  await assertFails(uploadBytes(ref(pilotUser.storage(bucket),"activities/unknown2026/groups/group01/missions/1/pilotStudent/photo1.jpg"),image,mime));
+ });
  await test("demo2026 group01 mission3 remains allowed",async()=>{
   await assertSucceeds(uploadBytes(ref(demoUser.storage(bucket),demoPath),image,mime));
   await assertSucceeds(getMetadata(ref(demoUser.storage(bucket),demoPath)));
