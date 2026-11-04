@@ -42,6 +42,17 @@ test("stage2 bootstrap enables only group01 mission2, waits for five snapshots",
  assert.ok(client.includes('group?.groupId!=="group01"'));
  assert.ok(client.includes('Number(missionId)!==2'));
 });
+test("Stage2 form unlock refreshes after Firestore readiness without losing draft",()=>{
+ const boot=read(".firebase-preview/pilot2026-stage2-live-bootstrap.js");
+ const quest=read(".firebase-preview/pilot2026-stage2-live-quest.js");
+ assert.ok(quest.includes('dataset.missionId = String(m.id)'));
+ assert.ok(boot.includes("function refreshStage2Button(){"));
+ assert.ok(boot.includes("refreshStage2Button();"));
+ assert.ok(boot.includes('window.cloudQuestMaySubmit(id)'));
+ assert.ok(boot.includes('btn.disabled=!eligible'));
+ assert.ok(boot.includes('readyCount===5'));
+ assert.ok(!boot.includes('showDashboard();\\n refreshStage2Button();'));
+});
 test("other five-quest, QR, Stage1 and Stage2 review remain independent",()=>{
  const d=".firebase-preview/";
  assert.ok(read(d+"pilot2026-cloud-bootstrap.js").includes("const SUBMISSIONS_ENABLED=false;"));
