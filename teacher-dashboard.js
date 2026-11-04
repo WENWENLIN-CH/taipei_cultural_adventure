@@ -124,16 +124,20 @@ async function showGroup(groupId,name){
        imageStatus.textContent="照片路徑異常";continue;
      }
      // Access-controlled bytes; do NOT create public download-token URLs.
-     try{
-       const blob=await getBlob(ref(storage,path),2*1024*1024);
-       if(generation!==currentGeneration)return;
-       if(blob.type!=="image/jpeg"){imageStatus.textContent="不是 JPEG";continue;}
-       const url=URL.createObjectURL(blob);
-       activeUrls.add(url);
-       const img=document.createElement("img");
-       img.src=url;img.alt=`第${i+1}關 ${photoKey} 測試照片`;
-       imageStatus.replaceWith(img);
-     }catch(e){if(generation!==currentGeneration)return;imageStatus.textContent=errorMessage(e);}
+     // Load each photo independently: a pending Storage request must NOT hide
+     // this mission card or block rendering missions 4 and 5.
+     void (async()=>{
+       try{
+         const blob=await getBlob(ref(storage,path),2*1024*1024);
+         if(generation!==currentGeneration)return;
+         if(blob.type!=="image/jpeg"){imageStatus.textContent="不是 JPEG";return;}
+         const url=URL.createObjectURL(blob);
+         activeUrls.add(url);
+         const img=document.createElement("img");
+         img.src=url;img.alt=`第${i+1}關 ${photoKey} 測試照片`;
+         imageStatus.replaceWith(img);
+       }catch(e){if(generation===currentGeneration)imageStatus.textContent=errorMessage(e);}
+     })();
    }
    box.append(photoBox);missionDetails.append(box);
   }
