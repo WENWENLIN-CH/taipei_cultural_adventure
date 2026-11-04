@@ -22,6 +22,8 @@ assert.match(js,/snap\.data\(\)\.authorized!==true/);
 assert.match(js,/getDocs\(collection\(db,"activities",activityId,"groups"\)\)/);
 assert.match(js,/getDoc\(doc\(db,"activities",activityId,"groups",groupId,"missions"/);
 assert.match(js,/getBlob\(ref\(storage,path\),2\*1024\*1024\)/);
+assert.ok(js.includes("void (async()=>{"),"Photo downloads must run independently of mission rendering");
+assert.ok(js.includes("box.append(photoBox);missionDetails.append(box);"),"Mission card must render immediately");
 assert.ok(!js.includes("getDownloadURL"),"Do not expose tokenized public URLs");
 assert.ok(!js.includes("writeBatch"),"Dashboard cannot write");
 assert.ok(!js.includes("setDoc"),"Dashboard cannot write");
