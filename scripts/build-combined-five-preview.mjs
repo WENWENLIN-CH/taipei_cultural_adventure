@@ -7,11 +7,11 @@ import {readFile} from "node:fs/promises";
 import {resolve,join} from "node:path";
 
 const root=resolve(".");
-for(const script of ["scripts/build-pilot2026-rehearsal.mjs","scripts/build-pilot2026-cloud-preview.mjs","scripts/build-pilot2026-stage1-live-preview.mjs","scripts/build-pilot2026-qr-preview.mjs","scripts/build-pilot2026-stage2-review-preview.mjs","scripts/build-pilot2026-stage2-live-preview.mjs","scripts/build-pilot2026-stage3-review-preview.mjs","scripts/build-pilot2026-stage3-live-preview.mjs","scripts/build-teacher-preview.mjs"]){
+for(const script of ["scripts/build-pilot2026-rehearsal.mjs","scripts/build-pilot2026-cloud-preview.mjs","scripts/build-pilot2026-stage1-live-preview.mjs","scripts/build-pilot2026-qr-preview.mjs","scripts/build-pilot2026-stage2-review-preview.mjs","scripts/build-pilot2026-stage2-live-preview.mjs","scripts/build-pilot2026-stage3-review-preview.mjs","scripts/build-pilot2026-stage3-live-preview.mjs","scripts/build-pilot2026-stage4-review-preview.mjs","scripts/build-teacher-preview.mjs"]){
  execFileSync(process.execPath,[script],{cwd:root,stdio:"inherit"});
 }
 const dir=join(root,".firebase-preview");
-const expected=["pilot2026-stage3-live-quest.html","pilot2026-stage3-live-quest.js","pilot2026-stage3-live-bootstrap.js","pilot2026-stage3-submission.js","pilot2026-stage3-review.html","pilot2026-stage3-review-quest.js","pilot2026-stage3-review-bootstrap.js","pilot2026-stage2-live-quest.html","pilot2026-stage2-live-quest.js","pilot2026-stage2-live-bootstrap.js","pilot2026-stage2-submission.js","pilot2026-stage2-review.html","pilot2026-stage2-review-quest.js","pilot2026-stage2-review-bootstrap.js","pilot2026-qr-join.html","pilot2026-qr-join-quest.js","pilot2026-qr-join-bootstrap.js","qr-invite-link.js","pilot2026-stage1-live-quest.html","pilot2026-stage1-live-quest.js","pilot2026-stage1-live-bootstrap.js","pilot2026-cloud-quest.html","pilot2026-cloud-quest.js","pilot2026-cloud-bootstrap.js","pilot2026-stage1-submission.js","pilot2026-rehearsal.html","pilot2026-rehearsal.js","pilot2026-rehearsal-bootstrap.js","five-quest.html","five-quest.js","cloud-quest.html","cloud-quest.js","pilot-quest.html",
+const expected=["pilot2026-stage4-review.html","pilot2026-stage4-review-quest.js","pilot2026-stage4-review-bootstrap.js","pilot2026-stage3-live-quest.html","pilot2026-stage3-live-quest.js","pilot2026-stage3-live-bootstrap.js","pilot2026-stage3-submission.js","pilot2026-stage3-review.html","pilot2026-stage3-review-quest.js","pilot2026-stage3-review-bootstrap.js","pilot2026-stage2-live-quest.html","pilot2026-stage2-live-quest.js","pilot2026-stage2-live-bootstrap.js","pilot2026-stage2-submission.js","pilot2026-stage2-review.html","pilot2026-stage2-review-quest.js","pilot2026-stage2-review-bootstrap.js","pilot2026-qr-join.html","pilot2026-qr-join-quest.js","pilot2026-qr-join-bootstrap.js","qr-invite-link.js","pilot2026-stage1-live-quest.html","pilot2026-stage1-live-quest.js","pilot2026-stage1-live-bootstrap.js","pilot2026-cloud-quest.html","pilot2026-cloud-quest.js","pilot2026-cloud-bootstrap.js","pilot2026-stage1-submission.js","pilot2026-rehearsal.html","pilot2026-rehearsal.js","pilot2026-rehearsal-bootstrap.js","five-quest.html","five-quest.js","cloud-quest.html","cloud-quest.js","pilot-quest.html",
  "cloud-quest-bootstrap.js","cloud-quest-pilot-bootstrap.js","teacher-dashboard.html","teacher-dashboard.js",
  "mission-cloud-flow.js","mission-upload-recovery.js","photo-upload.js"];
 for(const path of expected){
@@ -78,4 +78,11 @@ if(!stage3Live.includes("const SUBMISSIONS_ENABLED=true;")||
  !stage3Client.includes('"submitPilot2026Stage3"')||
  !stage3Review.includes("const SUBMISSIONS_ENABLED=false;"))
  throw Error("Unsafe Stage3 live candidate build");
+const stage4Review=await readFile(join(dir,"pilot2026-stage4-review-bootstrap.js"),"utf8");
+const stage4Html=await readFile(join(dir,"pilot2026-stage4-review.html"),"utf8");
+if(!stage4Review.includes("const SUBMISSIONS_ENABLED=false;")||
+ stage4Review.includes("submitPilot2026Stage4")||
+ !stage4Html.includes('src="pilot2026-stage4-review-bootstrap.js"')||
+ !stage4Html.includes("三個不同洲"))
+ throw Error("Unsafe Stage4 review page");
 console.log("PASS: pilot2026 cloud preview, rehearsal, five-quest, prior pilot and teacher preview coexist. BUILD ONLY, NOT DEPLOYED.");
