@@ -1,0 +1,31 @@
+import assert from "node:assert/strict";
+import {execFileSync} from "node:child_process";
+import {readFileSync} from "node:fs";
+import {createHash} from "node:crypto";
+const read=p=>readFileSync(p,"utf8");
+const hash=p=>createHash("sha256").update(readFileSync(p)).digest("hex");
+const h=hash("index.html"),s=hash("script.js");
+execFileSync(process.execPath,["scripts/build-teacher-preview.mjs"],{stdio:"inherit"});
+assert.equal(hash("index.html"),h,"Original website changed");
+assert.equal(hash("script.js"),s,"Original mission code changed");
+for(const file of ["cloud-quest.html","pilot-quest.html","teacher-dashboard.html","teacher-dashboard.js","firebase-auth.js","firebase-config.js"]){
+ assert.ok(read(".firebase-preview/"+file).length>20,"Missing preview file "+file);
+}
+const ui=read(".firebase-preview/teacher-dashboard.html");
+const js=read(".firebase-preview/teacher-dashboard.js");
+const safe=read(".firebase-preview/cloud-quest-bootstrap.js");
+const pilot=read(".firebase-preview/cloud-quest-pilot-bootstrap.js");
+assert.match(ui,/type="password"/);
+assert.match(ui,/role="status"/);
+assert.match(js,/"teacherAccess",user\.uid/);
+assert.match(js,/snap\.data\(\)\.authorized!==true/);
+assert.match(js,/getDocs\(collection\(db,"activities",activityId,"groups"\)\)/);
+assert.match(js,/getDoc\(doc\(db,"activities",activityId,"groups",groupId,"missions"/);
+assert.match(js,/getBlob\(ref\(storage,path\),2\*1024\*1024\)/);
+assert.ok(!js.includes("getDownloadURL"),"Do not expose tokenized public URLs");
+assert.ok(!js.includes("writeBatch"),"Dashboard cannot write");
+assert.ok(!js.includes("setDoc"),"Dashboard cannot write");
+assert.ok(safe.includes("const SUBMISSIONS_ENABLED=false;"),"Normal student page not safe");
+assert.ok(pilot.includes("const SUBMISSIONS_ENABLED=true;"),"Restricted pilot lost");
+console.log("PASS: authorized read-only teacher dashboard built; student pages and original website unchanged.");
+console.log("TEST ONLY, NOT DEPLOYED. Teacher account and Storage CORS still require real validation.");
