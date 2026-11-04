@@ -11,7 +11,7 @@ for(const script of ["scripts/build-pilot2026-rehearsal.mjs","scripts/build-pilo
  execFileSync(process.execPath,[script],{cwd:root,stdio:"inherit"});
 }
 const dir=join(root,".firebase-preview");
-const expected=["pilot2026-cloud-quest.html","pilot2026-cloud-quest.js","pilot2026-cloud-bootstrap.js","pilot2026-rehearsal.html","pilot2026-rehearsal.js","pilot2026-rehearsal-bootstrap.js","five-quest.html","five-quest.js","cloud-quest.html","cloud-quest.js","pilot-quest.html",
+const expected=["pilot2026-cloud-quest.html","pilot2026-cloud-quest.js","pilot2026-cloud-bootstrap.js","pilot2026-stage1-submission.js","pilot2026-rehearsal.html","pilot2026-rehearsal.js","pilot2026-rehearsal-bootstrap.js","five-quest.html","five-quest.js","cloud-quest.html","cloud-quest.js","pilot-quest.html",
  "cloud-quest-bootstrap.js","cloud-quest-pilot-bootstrap.js","teacher-dashboard.html","teacher-dashboard.js",
  "mission-cloud-flow.js","mission-upload-recovery.js","photo-upload.js"];
 for(const path of expected){
