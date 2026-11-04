@@ -29,3 +29,6 @@ serviceAccountKey.json
 
 # Generated independent Stage3 callable package
 .firebase-pilot2026-stage3-functions/
+
+# Generated independent Stage4 Functions package
+.firebase-pilot2026-stage4-functions/
