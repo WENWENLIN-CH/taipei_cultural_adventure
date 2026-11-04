@@ -1,0 +1,14 @@
+[
+  {
+    "origin": [
+      "https://taipei-cultural-adventure--auth-test-h1vdhpta.web.app"
+    ],
+    "method": [
+      "GET"
+    ],
+    "responseHeader": [
+      "Content-Type"
+    ],
+    "maxAgeSeconds": 3600
+  }
+]
