@@ -10,7 +10,8 @@
     "test": "node --test test/submission-core.test.mjs",
     "test:integration": "node --test test/submission-emulator.test.mjs",
     "test:real-storage": "node --test test/submission-real-storage.test.mjs",
-    "test:callable": "node --test test/callable-e2e.test.mjs"
+    "test:callable": "node --test test/callable-e2e.test.mjs",
+    "test:four-missions": "node --test test/four-missions-callable.test.mjs"
   },
   "dependencies": {
     "firebase-admin": "^13.0.0",
