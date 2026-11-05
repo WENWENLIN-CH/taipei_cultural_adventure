@@ -16,7 +16,7 @@ await writeFile(join(target,"package.json"),JSON.stringify({
 },null,2)+"\n");
 const index=await readFile(join(target,"index.js"),"utf8");
 const exported=[...index.matchAll(/export\s+const\s+(\w+)\s*=/g)].map(m=>m[1]);
-if(JSON.stringify(exported)!==JSON.stringify(["submitPhase2Mission"])||
+if(JSON.stringify(exported)!==JSON.stringify(["submitPhase2Mission","joinPhase2Group"])||
  (await readdir(target)).length!==5||
  index.includes("submitPilot2026Stage")||index.includes("submitGroupMission"))
  throw Error("Unsafe Phase2 callable packaging");
