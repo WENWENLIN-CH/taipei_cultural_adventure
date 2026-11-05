@@ -23,7 +23,7 @@ export function createPhase2JoinHandler({db,activityId,groupIds,serverTimestamp,
    const hashed=typeof info.joinTokenHash==="string"&&/^[a-f0-9]{64}$/.test(info.joinTokenHash)
     ?Buffer.from(info.joinTokenHash,"hex"):Buffer.alloc(32);
    const match=timingSafeEqual(hashed,Buffer.from(qrDigest(code),"hex"));
-   if(!group.exists||info.phase2!==true||info.maxMembers!==7||!match)
+   if(!group.exists||info.phase2!==true||![7,10].includes(info.maxMembers)||!match)
     return fail("permission-denied","這張小組 QR Code 無效或已停用");
    if(snaps.slice(1).some((snap,i)=>groupIds[i]!==groupId && snap.exists))
     return fail("permission-denied","此手機已加入另一組");
@@ -33,8 +33,8 @@ export function createPhase2JoinHandler({db,activityId,groupIds,serverTimestamp,
     return {activityId,groupId,studentCode:current.data().studentCode,restored:true};
    }
    const count=info.memberCount;
-   if(!Number.isInteger(count)||count<0||count>=7)
-    return fail("resource-exhausted","本組七個名額已滿");
+   if(!Number.isInteger(count)||count<0||count>=info.maxMembers)
+    return fail("resource-exhausted","本組名額已滿");
    const studentCode=`G${groupIds.indexOf(groupId)+1}-S${String(count+1).padStart(2,"0")}`;
    tx.create(members[groupIds.indexOf(groupId)],{studentCode,joinedAt:serverTimestamp(),revoked:false});
    tx.update(groupRef,{memberCount:count+1});
