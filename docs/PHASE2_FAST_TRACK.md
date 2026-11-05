@@ -31,26 +31,38 @@ npm run test:pilot2026-stage45-release-preflight
 
 This document is a checkpoint, **not** a claim that the activity website is ready.
 
-## Three-group real event setup (2026-11-05)
-- Provisional real activity ID: `taipei2026` (must confirm BEFORE creating any live data).
-- Groups: `group01`, `group02`, `group03`; no assumption that a group contains only two students.
-- `phase2-event-config.js` contains the ID and groups, but keeps `enabled:false` until live rules, backend and data are verified.
-- `teacher-dashboard.html` / `teacher-dashboard.js` allow an authorized teacher to select `taipei2026`. This doesn't grant data access.
-- `functions/scripts/create-phase2-three-groups.mjs` prepares one invitation per actual student with unique 48-character one-time codes; the default is dry-run. No secrets are stored in Git.
-- The first live creation is intentionally **not** executed. The provisioning command aborts if any of the three group documents already exists; do not blindly retry. Invites are saved in `.phase2-private-invites.txt` (ignored by Git; local owner-only permissions) only on the explicit guarded apply path.
-- The isolated Cloud Function requires server-side `PHASE2_ACTIVITY_ID` and `PHASE2_GROUP_IDS`; it stays disabled without those settings, and is not deployed.
+## Corrected real event flow (2026-11-05)
 
-### Run this first (NO cloud writes, NO deploy)
+**Confirmed teacher requirements:** exactly 3 groups (`group01`–`group03`), 7 students per group, 21 total. **ONE reusable QR per group**, not per-student one-time invitations. First scan auto-signs in anonymously and joins the corresponding group. Same browser/device resumes without scanning again. No student password, logout control, or cross-device identity recovery.
+
+The former per-student one-time invite tool has been **replaced** by a three-group QR provisioning script.
+
+- Provisional live ID: `taipei2026`, separate from `demo2026`, `pilot2026`, and `phase2sandbox`.
+- `functions/scripts/create-phase2-three-groups.mjs` defaults to dry-run: **3 groups, 3 shared QR secrets, cap 7 distinct anonymous UIDs per group**. All credentials remain private.
+- A group document stores only a SHA-256 hash of its shared QR credential. `joinPhase2Group` checks the group hash, the anonymous UID, other group memberships, and uses a Firestore transaction to reserve a slot atomically. A repeated scan by the same enrolled UID returns the existing student code and does not increase the count.
+- `phase2-qr-link.js` clears credentials from the URL fragment before Firebase calls; `phase2-student-bootstrap.js` auto-joins on first scan and resumes the same phone later.
+- `group-service.js` only caches identity after the server returns a verified group.
+- `scripts/create-phase2-group-qrs.mjs` generates **three private QR PNG images** using the credential file only after approved live provisioning. The images and private credential file are gitignored. Never paste QR secrets into chat or public GitHub.
+- `phase2-event-config.js` keeps `enabled:false`; the server also requires an explicit reviewed activity and group allowlist. No online writes/deployments have occurred.
+- The teacher dashboard can select `taipei2026`; it still enforces teacher authorization.
+
+### Safe Cloud Shell tests (do not deploy or create Firebase data)
 ```bash
 cd ~/taipei_cultural_adventure
 git pull --ff-only origin feature/firebase-sync
-node --test tests/phase2-three-groups-provision.test.mjs
-node --test tests/phase2-fast-track-smoke.test.mjs
-# Replace these sample student numbers with actual per-group counts:
-node functions/scripts/create-phase2-three-groups.mjs --group01=5 --group02=5 --group03=5
+node --check functions/phase2-live-entry.js
+node --check phase2-student-bootstrap.js
+node --test tests/phase2-three-groups-provision.test.mjs tests/phase2-qr-link.test.mjs tests/phase2-student-preview.test.mjs tests/phase2-fast-track-smoke.test.mjs
+node functions/scripts/create-phase2-three-groups.mjs --dry-run
+node scripts/build-phase2-live-functions.mjs
 ```
 
-### Do not run the live apply command yet
-Before creating live records, confirm the final event ID, actual per-group student counts, Console's CURRENT Firestore/Storage rules, anonymous Auth, and the Cloud Functions deployment/configuration. In particular, live Storage rules must grant only authorized group members access to their own activity's photo slots, deny overrides and cross-group reads, and enforce revoked members. The existing Firestore draft is not proof that those rules are live. Do not run `firebase deploy` as a blanket command.
+### Mandatory release checks (still pending)
+1. Verify CURRENT live Firestore and Storage rules from Firebase Console, especially explicit approved membership and revoked-member restrictions, photo access, teacher access and upload quotas.
+2. Emulator-test the actual callable: 7 unique UIDs join each group, the 8th is rejected, repeated QR scan doesn't consume a slot, cross-group rejected, unrelated login denied.
+3. Explicitly approve the provisional `taipei2026` ID, create-only group records and private credentials. Never re-run create blindly on failure.
+4. Configure reviewed Cloud Function environment variables and deploy only the independently selected Phase2 resources. Ensure it is callable with authorized students.
+5. Confirm QR scanning, photos, 5/5 shared completion, final riddle and four-field teacher dashboard on real phones. Only then enable the student frontend and distribute the three QR cards.
+6. No blanket `firebase deploy`, no modification of original `pilot2026` data or Functions.
 
-After the dry run, provision the actual event only with explicit permission, a reviewed create-only transaction, and a private list of invitation codes. Then enable the frontend only after an actual two-phone, two-group test and teacher dashboard verification.
+**Caution:** Reusable QR is a bearer credential: anyone with a copy can try joining while slots remain. Keep QR cards within the intended class and use the server cap. No automatic replacement of lost devices was requested.
