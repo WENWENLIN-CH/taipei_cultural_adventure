@@ -15,6 +15,20 @@ function once(s,old,newText,why){
  if(count!==1)throw Error("Refusing unsafe merge: "+why+" anchor occurred "+count+" times");
  return s.replace(old,newText);
 }
+function onceInsideBlock(source,blockHeader,old,newText,why){
+ const headerCount=source.split(blockHeader).length-1;
+ if(headerCount!==1)throw Error("Refusing unsafe merge: "+why+" block anchor count "+headerCount);
+ const start=source.indexOf(blockHeader)+blockHeader.length;
+ let depth=1,end=-1;
+ for(let i=start;i<source.length;i++){
+  if(source[i]==="{")depth++;
+  else if(source[i]==="}"&&--depth===0){end=i;break;}
+ }
+ if(end<0)throw Error("Unclosed Rules match block "+why);
+ const block=source.slice(start,end);
+ const updated=once(block,old,newText,why+" scoped");
+ return source.slice(0,start)+updated+source.slice(end);
+}
 async function original(kind){
  const text=await readFile(join(dir,kind+".rules"),"utf8");
  if(sha(text)!==expected[kind])throw Error(kind+" backup does not match verified LIVE rules; refusing merge");
@@ -28,7 +42,7 @@ let firestore=once(firestoreBefore,
  "return signedIn() && exists(/databases/$(database)/documents/activities/$(activityId)/groups/$(groupId)/members/$(request.auth.uid));",
  "return signedIn() && exists(/databases/$(database)/documents/activities/$(activityId)/groups/$(groupId)/members/$(request.auth.uid))\n        && (activityId != 'taipei2026' || get(/databases/$(database)/documents/activities/$(activityId)/groups/$(groupId)/members/$(request.auth.uid)).data.get('revoked', false) != true);",
  "Firestore isMember");
-firestore=once(firestore,
+firestore=onceInsideBlock(firestore,"match /groups/{groupId} {",
  "allow get: if isMember(activityId,groupId) || isTeacher();",
  "allow get: if (activityId != 'taipei2026' && isMember(activityId,groupId)) || isTeacher();",
  "Hide private QR hash in Phase2 group docs");
