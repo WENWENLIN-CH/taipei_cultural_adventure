@@ -1,57 +1,43 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {execFileSync} from "node:child_process";
-import {countsFromArgs,makePlan,makeInvites,verifyApply,applyPlan,ACTIVITY,GROUP_IDS} from "../functions/scripts/create-phase2-three-groups.mjs";
-
-const counts=()=>countsFromArgs(["--group01=5","--group02=6","--group03=4"]);
-test("Dry-run plans exactly three distinct groups and unique student codes",()=>{
- const p=makePlan(counts());
+import {makePlan,makeGroupKeys,hashCode,verifyApply,applyPlan,GROUP_IDS} from "../functions/scripts/create-phase2-three-groups.mjs";
+test("Three reusable QR groups have 7 seats each",()=>{
+ const p=makePlan();
  assert.equal(p.mode,"DRY_RUN_NO_WRITES");
- assert.equal(p.activityId,ACTIVITY);
- assert.deepEqual(p.groups.map(g=>g.groupId),GROUP_IDS);
- assert.equal(p.privateInvitesToCreate,15);
- assert.equal(new Set(p.groups.flatMap(g=>g.studentCodes)).size,15);
- assert.equal(p.missionDocumentsCreated??0,0);
+ assert.deepEqual(p.groups.map(x=>x.groupId),GROUP_IDS);
+ assert.ok(p.groups.every(x=>x.capacity===7&&x.qrCodes===1&&x.reusable));
+ assert.equal(p.totalStudents,21);
+ assert.equal(p.qrCodesToGenerate,3);
+ assert.equal(p.oneTimeInvitesToGenerate,0);
 });
-test("Invalid counts, missing group and extra group are rejected",()=>{
- for(const args of [
-  ["--group01=2","--group02=2"],
-  ["--group01=0","--group02=2","--group03=2"],
-  ["--group01=31","--group02=2","--group03=2"],
-  ["--group01=2","--group02=2","--group03=2","--group04=2"]
- ])assert.throws(()=>countsFromArgs(args));
+test("Exactly 3 unique secret codes, with separate SHA256 hashes",()=>{
+ const keys=makeGroupKeys();
+ assert.equal(keys.length,3);
+ assert.equal(new Set(keys.map(x=>x.code)).size,3);
+ assert.equal(new Set(keys.map(x=>hashCode(x.code))).size,3);
+ assert.ok(keys.every(x=>/^[a-f0-9]{48}$/.test(x.code)));
 });
-test("Invitation tokens are 48 hex and individually unique",()=>{
- const p=makePlan(counts());
- const list=makeInvites(p);
- assert.equal(list.length,15);
- assert.equal(new Set(list.map(i=>i.token)).size,15);
- assert.ok(list.every(i=>/^[a-f0-9]{48}$/.test(i.token)));
-});
-test("Live creation requires explicit confirmation and matching environment",()=>{
+test("Live creation needs explicit project and opt-in",()=>{
  const args=["--apply","--project=taipei-cultural-adventure","--confirm=CREATE_TAIPEI2026_THREE_GROUPS"];
  assert.throws(()=>verifyApply(args,{}));
- assert.throws(()=>verifyApply(args,{GCLOUD_PROJECT:"demo-test",ALLOW_PHASE2_CREATE:"YES"}));
- assert.throws(()=>verifyApply(args,{GCLOUD_PROJECT:"taipei-cultural-adventure",ALLOW_PHASE2_CREATE:"YES",FIRESTORE_EMULATOR_HOST:"localhost:8080"}));
+ assert.throws(()=>verifyApply(args,{GCLOUD_PROJECT:"wrong",ALLOW_PHASE2_CREATE:"YES"}));
+ assert.throws(()=>verifyApply(args,{GCLOUD_PROJECT:"taipei-cultural-adventure",ALLOW_PHASE2_CREATE:"YES",FIRESTORE_EMULATOR_HOST:"127.0.0.1:8080"}));
  assert.equal(verifyApply(args,{GCLOUD_PROJECT:"taipei-cultural-adventure",ALLOW_PHASE2_CREATE:"YES"}),true);
 });
-test("Create-only transaction never overwrites an existing group",async()=>{
- const p=makePlan(counts()),entries=makeInvites(p);
+test("Existing groups are protected by create-only transaction",async()=>{
+ const plan=makePlan(),keys=makeGroupKeys();
  let writes=0;
- const db={
-  doc:path=>({path}),
-  runTransaction:fn=>fn({
-   get:async ref=>({exists:ref.path===p.groups[0].groupPath}),
-   create:()=>{writes++;}
-  })
- };
- await assert.rejects(applyPlan({db,plan:p,entries,serverTimestamp:()=>0}),/no overwrite/);
+ const db={doc:path=>({path}),runTransaction:fn=>fn({
+  get:async ref=>({exists:ref.path===plan.groups[0].groupPath}),
+  create:()=>writes++
+ })};
+ await assert.rejects(applyPlan({db,plan,keys,serverTimestamp:()=>0}),/overwrite/);
  assert.equal(writes,0);
 });
-test("Default command is dry-run and never prints private tokens",()=>{
- const stdout=execFileSync(process.execPath,["functions/scripts/create-phase2-three-groups.mjs",
-  "--group01=3","--group02=4","--group03=5"],{encoding:"utf8"});
- assert.match(stdout,/DRY_RUN_NO_WRITES/);
- assert.match(stdout,/privateInvitesToCreate/);
- assert.doesNotMatch(stdout,/[a-f0-9]{48}/);
+test("Dry run never writes or reveals secrets",()=>{
+ const out=execFileSync(process.execPath,["functions/scripts/create-phase2-three-groups.mjs"],{encoding:"utf8"});
+ assert.match(out,/DRY_RUN_NO_WRITES/);
+ assert.match(out,/"qrCodesToGenerate": 3/);
+ assert.doesNotMatch(out,/[a-f0-9]{48}/);
 });
