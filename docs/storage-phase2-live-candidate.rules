@@ -1,0 +1,45 @@
+// LOCAL REVIEW CANDIDATE ONLY — NEVER deploy without reconciling current live rules.
+// Allows taipei2026 3-group 5-mission student JPGs. No public download URLs.
+rules_version = '2';
+service firebase.storage {
+ match /b/{bucket}/o {
+  function signed(){return request.auth != null;}
+  function teacher(){
+   return signed() && firestore.exists(/databases/(default)/documents/teacherAccess/$(request.auth.uid))
+    && firestore.get(/databases/(default)/documents/teacherAccess/$(request.auth.uid)).data.authorized == true;
+  }
+  function member(activityId,groupId){
+   return signed()
+    && firestore.exists(/databases/(default)/documents/activities/$(activityId)/groups/$(groupId)/members/$(request.auth.uid))
+    && firestore.get(/databases/(default)/documents/activities/$(activityId)/groups/$(groupId)/members/$(request.auth.uid)).data.get('revoked',false) != true;
+  }
+  function validPhoto(mission,filename){
+   return (mission == '1' && filename == 'photo1.jpg')
+    || (mission == '2' && filename.matches('^lang[1-4]_photo[.]jpg$'))
+    || (mission == '3' && filename.matches('^photo[1-2][.]jpg$'))
+    || (mission == '4' && filename.matches('^c[1-3]_photo[.]jpg$'))
+    || (mission == '5' && filename.matches('^p[1-3]_photo[.]jpg$'));
+  }
+  function supported(activity,group,mission){
+   return (activity == 'demo2026' && mission.matches('^[1-5]$'))
+    || (activity == 'pilot2026' && group == 'group01' && mission.matches('^[1-5]$'))
+    || (activity == 'taipei2026'
+     && (group == 'group01'||group == 'group02'||group == 'group03')
+     && mission.matches('^[1-5]$'));
+  }
+  match /activities/{activity}/groups/{group}/missions/{mission}/{uid}/{filename}{
+   allow get: if (supported(activity,group,mission) && member(activity,group)) || teacher();
+   allow list: if false;
+   allow create: if resource == null && signed()
+    && request.auth.uid == uid
+    && supported(activity,group,mission)
+    && member(activity,group)
+    && validPhoto(mission,filename)
+    && request.resource.size > 0
+    && request.resource.size <= 1024*1024
+    && request.resource.contentType == 'image/jpeg';
+   allow update,delete: if false;
+  }
+  match /{other=**}{allow read,write:if false;}
+ }
+}
