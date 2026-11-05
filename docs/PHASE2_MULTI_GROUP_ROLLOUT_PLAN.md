@@ -154,3 +154,7 @@ npm run test:phase2-auth-e2e
 - 此安全閘門尚未整合後端 Callable、也未通過與 Firestore 提交交易間的競態檢驗；不能認定正式上線安全。
 
 待執行：`npm run test:phase2-server-gates`。預期 6 tests、6 pass、0 fail。只跑 Node.js 單元測試，不會部署或讀寫正式 Firebase。
+
+## 第六批：整合安全閘門與任務提交（待驗證）
+新增 `functions/phase2-integrated-candidate.js` 及 `functions/test/phase2-integrated-candidate.test.mjs`。用相同模擬流程檢查三組五關、組員資格、先完成上一關、照片驗證及重複提交。執行 `npm run test:phase2-integrated`，預期 8 項通過、0 項失敗。尚未部署，也尚未進行真實手機驗收。
+正式版仍須將上一關完成狀態的檢查與本關新增放進同一 Firestore 交易，避免競態條件。
