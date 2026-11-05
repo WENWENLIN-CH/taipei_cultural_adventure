@@ -1,0 +1,21 @@
+{
+  "firestore": {
+    "rules": ".phase2-live-rules-backup/merged-firestore.rules"
+  },
+  "storage": {
+    "rules": ".phase2-live-rules-backup/merged-storage.rules"
+  },
+  "emulators": {
+    "firestore": {
+      "host": "127.0.0.1",
+      "port": 8080
+    },
+    "storage": {
+      "host": "127.0.0.1",
+      "port": 9199
+    },
+    "ui": {
+      "enabled": false
+    }
+  }
+}
