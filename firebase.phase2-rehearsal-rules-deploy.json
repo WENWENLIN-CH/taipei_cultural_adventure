@@ -1,0 +1,8 @@
+{
+  "firestore": {
+    "rules": ".phase2-live-rules-backup/rehearsal-firestore.rules"
+  },
+  "storage": {
+    "rules": ".phase2-live-rules-backup/rehearsal-storage.rules"
+  }
+}
