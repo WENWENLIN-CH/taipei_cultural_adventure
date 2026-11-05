@@ -17,7 +17,7 @@ html=once(html,"五關皆可瀏覽、填寫本機草稿並查看小組同步進�
 html=once(html,"🧪 五關介面預覽｜禁止雲端提交",
  "🏝️ 台北島｜第二階段活動","notice");
 html=once(html,"完成印章只根據 Firestore 的小組成果顯示；所有五關都完成才解鎖最後謎題。本機練習不會建立完成紀錄。",
- "每組每關只送一份共同成果，進度依 Firestore 更新；五關完成自動解鎖圓山／酒泉街謎題。","description");
+ "每組每關只提交一份共同成果，進度即時同步；完成五關後將開啟神秘的最終任務。","description");
 html=once(html,'<script src="five-quest.js"></script>','<script src="phase2-student-quest.js"></script>',"quest client");
 html=once(html,'<script type="module" src="cloud-quest-bootstrap.js"></script>','<script type="module" src="phase2-student-bootstrap.js"></script>',"student bootstrap");
 html=once(html,"Firebase 小組加入｜開發預覽","台北島｜掃描組別 QR Code 加入活動","join heading");
