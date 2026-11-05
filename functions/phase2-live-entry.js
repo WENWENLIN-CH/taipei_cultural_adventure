@@ -45,10 +45,10 @@ export const submitPhase2Mission=onCall({
 
 
 // QR enrollment uses the same independently reviewed allowlist as submission.
-const joinHandler=createPhase2JoinHandler({
+const joinHandler=enabled ? createPhase2JoinHandler({
  db,activityId,groupIds,serverTimestamp:()=>FieldValue.serverTimestamp(),
  makeError:(code,message)=>new HttpsError(code,message)
-});
+}) : null;
 export const joinPhase2Group=onCall({
  region:"asia-east1",memory:"256MiB",maxInstances:3,timeoutSeconds:30
 },async request=>{
