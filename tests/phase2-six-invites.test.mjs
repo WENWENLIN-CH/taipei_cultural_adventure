@@ -72,9 +72,10 @@ try{
  await test("Claimed invitations cannot be reused by a different account",async()=>{
   const original=users[0],attacker={uid:"attacker",token:original.token};
   await assert.rejects(join(attacker));
-  const batch=writeBatch(dbFor(attacker));
-  batch.update(doc(dbFor(attacker),"invites/"+original.token),{claimedBy:attacker.uid,claimedAt:serverTimestamp()});
-  batch.set(doc(dbFor(attacker),base(original.group)+"/members/"+attacker.uid),{
+  const attackerDb=dbFor(attacker);
+  const batch=writeBatch(attackerDb);
+  batch.update(doc(attackerDb,"invites/"+original.token),{claimedBy:attacker.uid,claimedAt:serverTimestamp()});
+  batch.set(doc(attackerDb,base(original.group)+"/members/"+attacker.uid),{
    inviteId:original.token,studentCode:original.code,joinedAt:serverTimestamp()
   });
   await assertFails(batch.commit());
@@ -90,8 +91,11 @@ try{
  await test("Pilot2026 retains same mission document and is not enrolled by sandbox invites",async()=>{
   const u=users[0];
   await assertFails(getDoc(doc(dbFor(u),"activities/pilot2026/groups/group01/missions/1")));
-  const marker=await env.withSecurityRulesDisabled(async ctx=>
-   getDoc(doc(ctx.firestore(),"activities/pilot2026/groups/group01/missions/1")));
-  assert.equal(marker.data().marker,"untouched");
+  const marker=await env.withSecurityRulesDisabled(async ctx=>{
+   const snapshot=await getDoc(doc(ctx.firestore(),"activities/pilot2026/groups/group01/missions/1"));
+   assert.equal(snapshot.exists(),true);
+   return snapshot.data().marker;
+  });
+  assert.equal(marker,"untouched");
  });
 }finally{await env.cleanup();}
