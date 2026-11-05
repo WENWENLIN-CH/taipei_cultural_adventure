@@ -18,7 +18,7 @@ test("Phase2 live config uses its own codebase",async()=>{
 });
 test("Teacher preview can select only explicitly allowed sandbox",async()=>{
  const js=await read("teacher-dashboard.js"),html=await read("teacher-dashboard.html");
- assert.match(js,/\["demo2026","pilot2026","phase2sandbox"\]/);
+ assert.match(js,/\["demo2026","pilot2026","phase2sandbox","taipei2026"\]/);
  assert.match(html,/value="phase2sandbox"/);
 });
 test("Existing five original pilot entrypoints are still separate files",async()=>{
