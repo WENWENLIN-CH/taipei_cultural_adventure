@@ -42,3 +42,6 @@ serviceAccountKey.json
 
 # Local-only Phase2 HTTPS Callable emulator package
 .firebase-phase2-callable-emulator/
+
+.firebase-phase2-rehearsal-functions/
+.firebase-phase2-rehearsal-hosting/
