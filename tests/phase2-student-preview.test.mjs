@@ -28,3 +28,11 @@ test("Original production index and website are not referenced as output",()=>{
  assert.match(src,/\.firebase-preview/);
  assert.doesNotMatch(src,/writeFile\(join\(root,"index.html"/);
 });
+
+test("QR error rendering initializes notice before first call",()=>{
+ const src=readFileSync("phase2-student-bootstrap.js","utf8");
+ assert.ok(src.indexOf("const notice=")>0);
+ assert.ok(src.indexOf("const notice=")<src.indexOf('if(scannedQr.kind==="invalid")notice('));
+ assert.match(src,/joinPhase2Group/);
+ assert.doesNotMatch(src,/joinByInvitation/);
+});
