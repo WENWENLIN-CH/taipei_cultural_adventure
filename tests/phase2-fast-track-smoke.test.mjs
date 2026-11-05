@@ -27,11 +27,12 @@ test("Existing five original pilot entrypoints are still separate files",async()
 
 test("Reusable Phase2 QR enrollment is separate from old single-use invitations",async()=>{
  const entry=await read("functions/phase2-live-entry.js");
+ const join=await read("functions/phase2-join-handler.js");
  const boot=await read("phase2-student-bootstrap.js");
  const setup=await read("functions/scripts/create-phase2-three-groups.mjs");
  assert.match(entry,/export const joinPhase2Group=onCall/);
- assert.match(entry,/memberCount/);
- assert.match(entry,/maxMembers!==7/);
+ assert.match(join,/memberCount/);
+ assert.match(join,/maxMembers!==7/);
  assert.match(boot,/readAndClearPhase2Qr/);
  assert.match(boot,/joinPhase2Group/);
  assert.doesNotMatch(boot,/joinByInvitation/);
