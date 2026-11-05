@@ -20,7 +20,7 @@ for(const mission of missions){
    if(field.type==="text"){originalKeys.answers.push(field.key);}
    else if(field.type==="photo"){originalKeys.photos.push(field.key);}
    else if(field.type==="pair"){originalKeys.answers.push(field.key+"_lang");originalKeys.photos.push(field.key+"_photo");}
-   else if(field.type==="continent"){originalKeys.answers.push(...["continent","country","restaurant"].map(x=>field.key+"_"+x));originalKeys.photos.push(field.key+"_photo");}
+   else if(field.type==="continent"){originalKeys.answers.push(...["continent","country"].map(x=>field.key+"_"+x));originalKeys.photos.push(field.key+"_photo");}
    else if(field.type==="product"){originalKeys.answers.push(...["country","name"].map(x=>field.key+"_"+x));originalKeys.photos.push(field.key+"_photo");}
    else throw Error("Unsupported original field type "+field.type);
  }
@@ -40,7 +40,7 @@ for(const mission of missions){
  const uploads=Object.fromEntries(spec.photoKeys.map(key=>[key,`activities/demo2026/groups/group01/missions/${mission.id}/student123/${key}.jpg`]));
  const paths=mapUploadedPaths(mission.id,uploads);
  assert.equal(validateSubmission(mission.id,extracted,paths),true);
- validateGroupPayload({activityId:"demo2026",groupId:"group01",missionId:mission.id,answers:extracted,photoPaths:paths});
+ validateGroupPayload({activityId:"taipei2026rehearsal",groupId:"group01",missionId:mission.id,answers:extracted,photoPaths:paths});
  checks++;
  assert.throws(()=>extractMissionForm(mission.id,{...answers,...photos,safetyCheck:false}),/安全事項/);
  assert.throws(()=>extractMissionForm(mission.id,{...answers,...photos,[spec.photoKeys[0]]:"",safetyCheck:true}),/照片/);
