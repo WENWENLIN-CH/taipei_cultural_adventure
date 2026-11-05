@@ -3,8 +3,8 @@
 export const FORM_SPEC = Object.freeze({
   1:{photoKeys:["photo1"],answerKeys:["location"]},
   2:{photoKeys:["lang1_photo","lang2_photo","lang3_photo","lang4_photo"],answerKeys:["lang1_lang","lang2_lang","lang3_lang","lang4_lang"]},
-  3:{photoKeys:["photo1","photo2"],answerKeys:["restaurant"]},
-  4:{photoKeys:["c1_photo","c2_photo","c3_photo"],answerKeys:["c1_continent","c1_country","c1_restaurant","c2_continent","c2_country","c2_restaurant","c3_continent","c3_country","c3_restaurant"]},
+  3:{photoKeys:["photo1","photo2"],answerKeys:[]},
+  4:{photoKeys:["c1_photo","c2_photo","c3_photo"],answerKeys:["c1_continent","c1_country","c2_continent","c2_country","c3_continent","c3_country"]},
   5:{photoKeys:["p1_photo","p2_photo","p3_photo"],answerKeys:["p1_country","p1_name","p2_country","p2_name","p3_country","p3_name"]}
 });
 export function extractMissionForm(missionId,formData) {
