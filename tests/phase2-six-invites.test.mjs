@@ -91,11 +91,12 @@ try{
  await test("Pilot2026 retains same mission document and is not enrolled by sandbox invites",async()=>{
   const u=users[0];
   await assertFails(getDoc(doc(dbFor(u),"activities/pilot2026/groups/group01/missions/1")));
-  const marker=await env.withSecurityRulesDisabled(async ctx=>{
+  // withSecurityRulesDisabled does not forward its callback's return value.
+  // Assert inside the callback, where the privileged test snapshot is available.
+  await env.withSecurityRulesDisabled(async ctx=>{
    const snapshot=await getDoc(doc(ctx.firestore(),"activities/pilot2026/groups/group01/missions/1"));
    assert.equal(snapshot.exists(),true);
-   return snapshot.data().marker;
+   assert.equal(snapshot.data().marker,"untouched");
   });
-  assert.equal(marker,"untouched");
  });
 }finally{await env.cleanup();}
