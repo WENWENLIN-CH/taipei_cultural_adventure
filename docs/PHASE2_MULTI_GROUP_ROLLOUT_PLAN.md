@@ -158,3 +158,19 @@ npm run test:phase2-auth-e2e
 ## 第六批：整合安全閘門與任務提交（待驗證）
 新增 `functions/phase2-integrated-candidate.js` 及 `functions/test/phase2-integrated-candidate.test.mjs`。用相同模擬流程檢查三組五關、組員資格、先完成上一關、照片驗證及重複提交。執行 `npm run test:phase2-integrated`，預期 8 項通過、0 項失敗。尚未部署，也尚未進行真實手機驗收。
 正式版仍須將上一關完成狀態的檢查與本關新增放進同一 Firestore 交易，避免競態條件。
+
+## 第七批：補強同一筆交易的上一關檢查（待測試）
+新增 `createSubmissionHandler` 可選的 `transactionGuard`；只有第二階段模擬器候選流程會傳入此選項，既有 Stage1–5 的線上入口及原本呼叫方式不變。第二階段候選在 Firestore 任務建立的**同一筆 transaction**中，再次讀取上一關 `status === completed`，避免預先檢查與實際提交之間的狀態變化。
+
+`functions/test/phase2-integrated-candidate.test.mjs` 增加競態模擬：預檢通過後、進入交易前將上一關改為 pending；應拒絕建立本關，並在模擬器內恢復原狀。
+
+請執行：
+```
+cd ~/taipei_cultural_adventure
+git pull origin feature/firebase-sync
+npm run test:phase2-integrated
+npm run test:phase2-three-groups-submission
+npm run test:pilot2026-stage45-release-preflight
+```
+
+第一項預期 9 項測試全部通過；後兩項為既有提交流程與封裝的回歸檢查。此批**未部署**。下一步仍需獨立 HTTPS Callable 與學生前端驗證。
