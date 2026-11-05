@@ -154,3 +154,9 @@ body{background:#eef9fc}
 .teacher-strip{margin-top:12px;padding:13px 14px;border-radius:18px;background:#f8fcfd;border:1px solid #d8e8ed;display:flex;align-items:center;justify-content:space-between;gap:10px;color:#6f8290;font-size:.8rem}
 @media (prefers-reduced-motion:reduce){.final-map-btn.unlocked{animation:none}}
 @media (max-width:390px){main{padding-left:10px;padding-right:10px}.island-frame{padding-left:2px;padding-right:2px}.map-mission{min-width:72px}.pin-emoji{width:48px;height:48px;font-size:1.45rem}.pin-label{font-size:.61rem;padding:4px 6px}.pin-state{right:1px}.final-map-btn{width:118px;font-size:.72rem}.stamp{width:34px;height:34px}.quest-status{padding:12px}.teacher-strip{align-items:flex-start;flex-direction:column}}
+
+/* Phase2: completed mission read-only shared gallery (same-group only). */
+.shared-results-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-top:12px}
+.shared-result-photo{padding:10px;background:#fff;border:1px solid var(--line);border-radius:12px;overflow-wrap:anywhere}
+.shared-result-photo strong{display:block;margin-bottom:8px;font-size:.88rem}
+.shared-result-photo img{display:block;width:100%;max-height:280px;object-fit:contain;background:#f0f5f7;border-radius:9px}
