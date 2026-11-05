@@ -4,7 +4,7 @@ import {auth,teacherSignIn,logout,watchAuth} from "./firebase-auth.js";
 import {getFirestore,doc,getDoc,collection,getDocs} from "https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js";
 import {getStorage,ref,getBlob} from "https://www.gstatic.com/firebasejs/13.1.0/firebase-storage.js";
 
-const ALLOWED_ACTIVITIES=Object.freeze(["demo2026","pilot2026"]);
+const ALLOWED_ACTIVITIES=Object.freeze(["demo2026","pilot2026","phase2sandbox"]);
 let activityId="demo2026";
 const activitySelector=document.getElementById("activitySelector");
 const boardHeading=document.getElementById("boardHeading");
