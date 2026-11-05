@@ -26,8 +26,12 @@ function onceInsideBlock(source,blockHeader,old,newText,why){
  }
  if(end<0)throw Error("Unclosed Rules match block "+why);
  const block=source.slice(start,end);
- const updated=once(block,old,newText,why+" scoped");
- return source.slice(0,start)+updated+source.slice(end);
+ // Only the group's direct declarations, before any nested match, may change.
+ const firstNested=block.search(/\bmatch\s+\//);
+ if(firstNested<0)throw Error("Nested group rules not found; refusing merge");
+ const head=block.slice(0,firstNested),tail=block.slice(firstNested);
+ const updated=once(head,old,newText,why+" direct declarations");
+ return source.slice(0,start)+updated+tail+source.slice(end);
 }
 async function original(kind){
  const text=await readFile(join(dir,kind+".rules"),"utf8");
@@ -68,9 +72,8 @@ const pos=storage.indexOf(beforePhotoKey);
 if(pos<0||storage.indexOf(beforePhotoKey,pos+1)!==-1)
  throw Error("Storage photo authorization anchor changed");
 const prefix=storage.slice(0,pos);
-const match=prefix.match(/(\s*\)\s*)$/);
-if(!match)throw Error("Expected existing activity expression before photoKey");
-const closePos=pos-match[1].length;
+if(!/\)\s*$/.test(prefix))throw Error("Expected the activity allowlist to end with a closing parenthesis");
+const closePos=prefix.lastIndexOf(")");
 const addition=" || (activityId == 'taipei2026' && (groupId == 'group01' || groupId == 'group02' || groupId == 'group03') && (missionId == '1' || missionId == '2' || missionId == '3' || missionId == '4' || missionId == '5'))";
 storage=storage.slice(0,closePos)+addition+storage.slice(closePos);
 if(!storage.includes("taipei2026"))throw Error("Phase2 Storage allowlist not added");
