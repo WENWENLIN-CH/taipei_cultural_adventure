@@ -6,12 +6,14 @@ import {readAndClearPhase2Qr} from "./phase2-qr-link.js";
 import {submitOriginalMission} from "./mission-cloud-flow.js";
 import {submitPhase2Mission} from "./phase2-submission.js";
 import {PHASE2_EVENT} from "./phase2-event-config.js";
+import {createSharedResultViewer} from "./phase2-shared-results.js";
 
 const enabled=PHASE2_EVENT.enabled===true;
 const activityId=PHASE2_EVENT.activityId;
 const groups=PHASE2_EVENT.groups;
 let group=null,unsubscribe=null,submitting=false,readyCount=0;
-const completed=new Set(),seen=new Set();
+const completed=new Set(),seen=new Set(),submissions=new Map();
+const sharedViewer=createSharedResultViewer();
 const status=document.getElementById("cloudStatus");
 const feedback=document.getElementById("cloudFeedback");
 const notice=s=>{feedback.textContent=String(s);};
@@ -23,12 +25,16 @@ if(scannedQr.kind==="invalid")notice("QR Code 格式錯誤，請重新掃描老�
 else if(!enabled)notice("目前是開放前測試版，尚未開放學生加入。");
 else if(scannedQr.kind==="absent")notice("請掃描老師提供的小組 QR Code；已加入過的學生可在此裝置恢復進度。");
 const allowed=g=>g?.activityId===activityId && groups.includes(g.groupId);
-function stop(){unsubscribe?.();unsubscribe=null;group=null;completed.clear();seen.clear();readyCount=0;}
+function stop(){unsubscribe?.();unsubscribe=null;group=null;completed.clear();seen.clear();submissions.clear();sharedViewer.reset();readyCount=0;}
 function showJoin(){
  document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("active",s.id==="startScreen"));
  document.getElementById("homeBtn")?.classList.add("hidden");
 }
 window.cloudQuestCompleted=id=>completed.has(Number(id));
+window.cloudQuestShowSharedMission=id=>{
+ const n=Number(id);
+ return completed.has(n)&&sharedViewer.show({group,missionId:n,submission:submissions.get(n)});
+};
 window.cloudQuestMaySubmit=id=>enabled && allowed(group) && seen.size===5 && !submitting &&
  Number.isInteger(Number(id)) && Number(id)>=1 && Number(id)<=5 &&
  !completed.has(Number(id)) && (Number(id)===1||completed.has(Number(id)-1));
@@ -48,7 +54,11 @@ function render(){
   const button=document.getElementById("completeMissionBtn");
   if(button){
    const mission=Number(document.querySelector(".mission-detail-card .eyebrow")?.textContent?.match(/\d+/)?.[0]);
-   if(Number.isInteger(mission))button.disabled=!window.cloudQuestMaySubmit(mission);
+   if(Number.isInteger(mission)){
+    if(window.cloudQuestCompleted(mission)){
+     window.cloudQuestShowSharedMission(mission);
+    }else button.disabled=!window.cloudQuestMaySubmit(mission);
+   }
   }
  }
 }
@@ -57,8 +67,11 @@ function activate(g){
  stop();group=g;window.cloudQuestActivate(g);
  unsubscribe=watchGroupMissions(g,(id,data)=>{
   seen.add(Number(id));
-  if(data?.status==="completed")completed.add(Number(id));
-  else completed.delete(Number(id));
+  if(data?.status==="completed"){
+   completed.add(Number(id));submissions.set(Number(id),data);
+  }else{
+   completed.delete(Number(id));submissions.delete(Number(id));
+  }
   render();
  },err=>notice("雲端同步失敗："+err.message));
  render();
