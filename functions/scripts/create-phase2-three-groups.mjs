@@ -4,6 +4,7 @@ import {randomBytes,createHash} from "node:crypto";
 import {open} from "node:fs/promises";
 import {resolve} from "node:path";
 import {pathToFileURL} from "node:url";
+import {createRequire} from "node:module";
 export const PROJECT="taipei-cultural-adventure";
 export const ACTIVITY="taipei2026";
 export const GROUP_IDS=Object.freeze(["group01","group02","group03"]);
@@ -58,6 +59,11 @@ async function main(){
  console.log(JSON.stringify(plan,null,2));
  if(args.length===0||(args.length===1&&args[0]==="--dry-run"))return;
  verifyApply(args);
+ // Resolve Firebase Admin from functions/node_modules BEFORE writing credentials.
+ // The repository root package.json does not depend on firebase-admin.
+ const requireAdmin=createRequire(resolve("functions/package.json"));
+ const {initializeApp,applicationDefault}=requireAdmin("firebase-admin/app");
+ const {getFirestore,FieldValue}=requireAdmin("firebase-admin/firestore");
  const keys=makeGroupKeys();
  const output=await open(resolve(OUTPUT),"wx",0o600);
  try{
@@ -66,8 +72,6 @@ async function main(){
    ...keys.map(x=>`${x.groupId}\t${x.code}`)
   ].join("\n")+"\n");
  }finally{await output.close();}
- const {initializeApp,applicationDefault}=await import("firebase-admin/app");
- const {getFirestore,FieldValue}=await import("firebase-admin/firestore");
  initializeApp({projectId:PROJECT,credential:applicationDefault()});
  try{
   await applyPlan({db:getFirestore(),plan,keys,serverTimestamp:()=>FieldValue.serverTimestamp()});
