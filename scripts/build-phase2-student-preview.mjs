@@ -21,8 +21,6 @@ html=once(html,"完成印章只根據 Firestore 的小組成果顯示；所有�
 html=once(html,'<script src="five-quest.js"></script>','<script src="phase2-student-quest.js"></script>',"quest client");
 html=once(html,'<script type="module" src="cloud-quest-bootstrap.js"></script>','<script type="module" src="phase2-student-bootstrap.js"></script>',"student bootstrap");
 html=once(html,"Firebase 小組加入｜開發預覽","台北島｜學生加入活動","join heading");
-html=once(html,"每人以自己的手機登入，輸入老師發放的專屬加入碼；此版只顯示共享進度，不接受正式任務提交。",
- "每位學生使用自己的手機，以老師提供的一次性加入碼加入小組。","join instructions");
 js=once(js,'const STORAGE_KEY = "taipeiCulturalQuestFiveReadOnlyV1";',
  'const STORAGE_KEY = "taipeiCulturalQuestPhase2CandidateV1";',"draft key");
 js=once(js,"確認代表第一組提交第三關共同成果？提交後不可自行修改，並會上傳 2 張照片。",
