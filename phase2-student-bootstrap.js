@@ -14,6 +14,7 @@ let group=null,unsubscribe=null,submitting=false,readyCount=0;
 const completed=new Set(),seen=new Set();
 const status=document.getElementById("cloudStatus");
 const feedback=document.getElementById("cloudFeedback");
+const notice=s=>{feedback.textContent=String(s);};
 const dashboardStatus=document.getElementById("cloudDashboardStatus");
 const joinButton=document.getElementById("cloudJoin");
 const loginButton=document.getElementById("cloudLogin");
@@ -22,7 +23,6 @@ const scannedQr=readAndClearPhase2Qr(window.location,window.history);
 let qrPending=scannedQr.kind==="valid"?scannedQr:null;
 let joining=false;
 if(scannedQr.kind==="invalid")notice("QR Code 格式錯誤，請重新掃描老師提供的組別 QR Code");
-const notice=s=>{feedback.textContent=String(s);};
 const allowed=g=>g?.activityId===activityId && groups.includes(g.groupId);
 function stop(){unsubscribe?.();unsubscribe=null;group=null;completed.clear();seen.clear();readyCount=0;}
 function showJoin(){
