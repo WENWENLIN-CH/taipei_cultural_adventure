@@ -14,10 +14,14 @@ await writeFile(join(target,"package.json"),JSON.stringify({
  engines:{node:"22"},main:"index.js",
  dependencies:{"firebase-admin":pkg.dependencies["firebase-admin"],"firebase-functions":pkg.dependencies["firebase-functions"]}
 },null,2)+"\n");
+// Non-secret allowlist for the dedicated production activity.
+// Cloud Functions loads .env.<projectId> at deploy; no student tokens appear here.
+await writeFile(join(target,".env.taipei-cultural-adventure"),
+ "PHASE2_ACTIVITY_ID=taipei2026\nPHASE2_GROUP_IDS=group01,group02,group03\n");
 const index=await readFile(join(target,"index.js"),"utf8");
 const exported=[...index.matchAll(/export\s+const\s+(\w+)\s*=/g)].map(m=>m[1]);
 if(JSON.stringify(exported)!==JSON.stringify(["submitPhase2Mission","joinPhase2Group"])||
- (await readdir(target)).length!==6||
+ (await readdir(target)).length!==7||
  index.includes("submitPilot2026Stage")||index.includes("submitGroupMission"))
  throw Error("Unsafe Phase2 callable packaging");
 console.log("READY: isolated Phase2 callable candidate. NOT DEPLOYED.");
