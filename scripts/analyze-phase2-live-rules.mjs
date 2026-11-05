@@ -18,7 +18,7 @@ for(const name of ["firestore","storage"]){
 function summarized(name,s){
  const withoutComments=s.replace(/\/\*[\s\S]*?\*\//g,"").replace(/\/\/[^\n]*/g,"");
  const lines=withoutComments.split("\n");
- const matches=[...withoutComments.matchAll(/\bmatch\s+\/([^\s{]+)\s*\{/g)].map(x=>x[1]);
+ const matches=[...withoutComments.matchAll(/^\s*match\s+(.*?)\s*\{\s*$/gm)].map(x=>x[1]);
  const fns=[...withoutComments.matchAll(/\bfunction\s+([A-Za-z][A-Za-z0-9_]*)\s*\(/g)].map(x=>x[1]);
  const counts={
   get:(withoutComments.match(/\ballow\s+get\s*:/g)||[]).length,
