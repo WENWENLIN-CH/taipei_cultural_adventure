@@ -16,13 +16,12 @@ const status=document.getElementById("cloudStatus");
 const feedback=document.getElementById("cloudFeedback");
 const notice=s=>{feedback.textContent=String(s);};
 const dashboardStatus=document.getElementById("cloudDashboardStatus");
-const joinButton=document.getElementById("cloudJoin");
-const loginButton=document.getElementById("cloudLogin");
-const inviteInput=document.getElementById("cloudInvite");
 const scannedQr=readAndClearPhase2Qr(window.location,window.history);
 let qrPending=scannedQr.kind==="valid"?scannedQr:null;
 let joining=false;
 if(scannedQr.kind==="invalid")notice("QR Code 格式錯誤，請重新掃描老師提供的組別 QR Code");
+else if(!enabled)notice("目前是開放前測試版，尚未開放學生加入。");
+else if(scannedQr.kind==="absent")notice("請掃描老師提供的小組 QR Code；已加入過的學生可在此裝置恢復進度。");
 const allowed=g=>g?.activityId===activityId && groups.includes(g.groupId);
 function stop(){unsubscribe?.();unsubscribe=null;group=null;completed.clear();seen.clear();readyCount=0;}
 function showJoin(){
@@ -43,7 +42,6 @@ function render(){
  const progress=group?`${group.groupId}｜${group.studentCode}｜已完成 ${completed.size}/5`:"尚未加入活動";
  status.textContent=`${progress}\n同步：${seen.size===5?"已連線":"讀取中"}\n提交：${enabled?"活動模式":"尚未啟用"}`;
  dashboardStatus.textContent=progress+(group?`｜${seen.size===5?"雲端同步成功":"連線中"}`:"");
- joinButton.disabled=Boolean(group)||!enabled;
  if(group && document.getElementById("dashboardScreen")?.classList.contains("active"))
   window.showDashboard?.();
  if(document.getElementById("missionScreen")?.classList.contains("active")){
@@ -73,16 +71,8 @@ async function restore(){
   if(existing)notice("這個瀏覽器已加入另一個活動，請勿直接覆寫原有身分");
  }
 }
-loginButton.onclick=async()=>{
- loginButton.disabled=true;
- try{await studentSignIn();await restore();notice(enabled?"請掃描老師提供的組別 QR Code。":"活動尚未啟用");}
- catch(err){notice(err.message);}
- finally{loginButton.disabled=false;}
-};
 // A URL fragment holds the reusable per-group secret, then disappears from the URL.
 // No user-visible code entry is needed. Same phone restores the membership cache.
-inviteInput.closest("label")?.setAttribute("hidden","");
-joinButton.hidden=true;
 async function autoJoin(){
  if(joining||!qrPending||!enabled)return;
  joining=true;
@@ -100,7 +90,6 @@ async function autoJoin(){
  }catch(err){notice("掃碼加入失敗："+err.message);}
  finally{joining=false;render();}
 }
-joinButton.onclick=()=>void autoJoin();
 watchAuth(user=>{
  if(!user?.isAnonymous){
   stop();showJoin();render();
