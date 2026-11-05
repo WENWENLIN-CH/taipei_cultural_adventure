@@ -4,8 +4,8 @@ const photos = n=>Object.fromEntries(REQUIRED_PHOTO_KEYS[n].map((key,i)=>[key,`a
 const answers={
   1:{location:"台北車站"},
   2:{lang1_lang:"日文",lang2_lang:"韓文",lang3_lang:"越南文",lang4_lang:"泰文"},
-  3:{restaurant:"測試餐廳"},
-  4:{c1_continent:"亞洲",c1_country:"臺灣",c1_restaurant:"店1",c2_continent:"歐洲",c2_country:"義大利",c2_restaurant:"店2",c3_continent:"非洲",c3_country:"摩洛哥",c3_restaurant:"店3"},
+  3:{},
+  4:{c1_continent:"亞洲",c1_country:"臺灣",c2_continent:"歐洲",c2_country:"義大利",c3_continent:"非洲",c3_country:"摩洛哥",},
   5:{p1_country:"菲律賓",p1_name:"A",p2_country:"泰國",p2_name:"B",p3_country:"越南",p3_name:"C"}
 };
 let total=0;
