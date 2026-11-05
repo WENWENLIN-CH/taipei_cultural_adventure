@@ -1,0 +1,8 @@
+{
+  "firestore": {
+    "rules": ".phase2-live-rules-backup/merged-firestore.rules"
+  },
+  "storage": {
+    "rules": ".phase2-live-rules-backup/merged-storage.rules"
+  }
+}
