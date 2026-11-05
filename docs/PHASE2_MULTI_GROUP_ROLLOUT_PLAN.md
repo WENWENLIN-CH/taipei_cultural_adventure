@@ -98,3 +98,17 @@ npm run test:phase2-three-groups-rules
 3. 教師後台活動切換與多組實機驗收、現場網路異常復原、資料保護與正式發布。
 
 此批只修改 `feature/firebase-sync` 開發分支，**絕不可使用 `firebase deploy` 或替換線上 Firestore/Storage 規則**。
+
+## 第二階段 A — 第二批：三組五關提交整合測試（待 Cloud Shell 驗證）
+- 新增 `functions/test/phase2-three-groups-submission.test.mjs`，使用 **demo-taipei-isolated-pilot** 模擬專案，透過伺服器既有 `createSubmissionHandler` 的 emulator-only 注入 scope 測試 `phase2sandbox`。
+- 三組各兩人；預期測試：缺照片不能完成、同組不同成員分別提交任務、跨組拒絕、匿名身分限制、相同關卡不得重複、三組各自五關、原 `pilot2026` 不被建立或修改。此測試**不代表已經完成正式版 Callable 部署**；它只驗證可複用的後端提交核心。
+- 此批沒有修改線上任何 Cloud Function 或 Firebase Rules。
+- 驗證指令：
+```bash
+cd ~/taipei_cultural_adventure
+git pull origin feature/firebase-sync
+npm run test:phase2-three-groups-submission
+```
+- 預期 6 項測試通過；未於 Cloud Shell 執行前**不得宣稱已通過**。
+
+**尚未完成：** 兩名成員真實 Auth 邀請交易、跨手機即時同步、正式活動專用 Function 與順序約束及更完整的 3 組 6 手機端到端測試。必須先在模擬環境中逐項完成才可進入正式部署。
