@@ -1,7 +1,8 @@
 // Phase2 student candidate. No live write until the real event is configured and deployed.
-import {watchAuth,studentSignIn} from "./firebase-auth.js";
-import {joinByInvitation,resumeGroup,watchGroupMissions,db} from "./group-service.js";
-import {doc,getDoc} from "https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js";
+import {watchAuth,studentSignIn,auth} from "./firebase-auth.js";
+import {resumeGroup,watchGroupMissions,cacheVerifiedGroup} from "./group-service.js";
+import {getFunctions,httpsCallable} from "https://www.gstatic.com/firebasejs/13.1.0/firebase-functions.js";
+import {readAndClearPhase2Qr} from "./phase2-qr-link.js";
 import {submitOriginalMission} from "./mission-cloud-flow.js";
 import {submitPhase2Mission} from "./phase2-submission.js";
 import {PHASE2_EVENT} from "./phase2-event-config.js";
@@ -17,6 +18,10 @@ const dashboardStatus=document.getElementById("cloudDashboardStatus");
 const joinButton=document.getElementById("cloudJoin");
 const loginButton=document.getElementById("cloudLogin");
 const inviteInput=document.getElementById("cloudInvite");
+const scannedQr=readAndClearPhase2Qr(window.location,window.history);
+let qrPending=scannedQr.kind==="valid"?scannedQr:null;
+let joining=false;
+if(scannedQr.kind==="invalid")notice("QR Code 格式錯誤，請重新掃描老師提供的組別 QR Code");
 const notice=s=>{feedback.textContent=String(s);};
 const allowed=g=>g?.activityId===activityId && groups.includes(g.groupId);
 function stop(){unsubscribe?.();unsubscribe=null;group=null;completed.clear();seen.clear();readyCount=0;}
@@ -50,7 +55,7 @@ function render(){
  }
 }
 function activate(g){
- if(!allowed(g))throw Error("這張加入碼不屬於本次活動");
+ if(!allowed(g))throw Error("這張 QR Code 不屬於本次活動");
  stop();group=g;window.cloudQuestActivate(g);
  unsubscribe=watchGroupMissions(g,(id,data)=>{
   seen.add(Number(id));
@@ -70,30 +75,39 @@ async function restore(){
 }
 loginButton.onclick=async()=>{
  loginButton.disabled=true;
- try{await studentSignIn();await restore();notice(enabled?"請輸入老師提供的個人一次性加入碼。":"活動尚未啟用");}
+ try{await studentSignIn();await restore();notice(enabled?"請掃描老師提供的組別 QR Code。":"活動尚未啟用");}
  catch(err){notice(err.message);}
  finally{loginButton.disabled=false;}
 };
-joinButton.onclick=async()=>{
- joinButton.disabled=true;
+// A URL fragment holds the reusable per-group secret, then disappears from the URL.
+// No user-visible code entry is needed. Same phone restores the membership cache.
+inviteInput.closest("label")?.setAttribute("hidden","");
+joinButton.hidden=true;
+async function autoJoin(){
+ if(joining||!qrPending||!enabled)return;
+ joining=true;
+ const pending=qrPending;
  try{
-  if(!enabled)throw Error("活動尚未啟用");
-  await studentSignIn();
   const prior=await resumeGroup();
-  if(prior&&!allowed(prior))throw Error("目前登入身分已屬其他活動，請改用其他瀏覽器設定檔");
-  const token=inviteInput.value.trim();
-  if(!/^[a-f0-9]{48}$/i.test(token))throw Error("加入碼格式錯誤");
-  const snap=await getDoc(doc(db,"invites",token));
-  if(!snap.exists()||snap.data().activityId!==activityId||!groups.includes(snap.data().groupId))
-   throw Error("加入碼不屬於本活動");
-  const g=await joinByInvitation(token);
-  activate(g);inviteInput.value="";notice("加入成功！組員共同分享五關進度。");
- }catch(err){notice("加入失敗："+err.message);}
- finally{render();}
-};
+  if(prior){
+   if(allowed(prior)){qrPending=null;activate(prior);return;}
+   throw Error("此手機已加入其他活動，請使用未加入過活動的瀏覽器");
+  }
+  const {data}=await httpsCallable(getFunctions(auth.app,"asia-east1"),"joinPhase2Group")({groupId:pending.groupId,code:pending.code});
+  if(!allowed(data)||!data.studentCode)throw Error("後端回傳了無效的小組");
+  cacheVerifiedGroup(data);qrPending=null;activate(data);
+  notice("加入成功！本組 QR Code 可以供其他組員重複掃描。");
+ }catch(err){notice("掃碼加入失敗："+err.message);}
+ finally{joining=false;render();}
+}
+joinButton.onclick=()=>void autoJoin();
 watchAuth(user=>{
- if(!user?.isAnonymous){stop();showJoin();render();return;}
- void restore().catch(err=>{stop();showJoin();render();notice("恢復小組失敗："+err.message);});
+ if(!user?.isAnonymous){
+  stop();showJoin();render();
+  if(!user&&qrPending)void studentSignIn().catch(err=>notice("匿名登入失敗："+err.message));
+  return;
+ }
+ void restore().then(()=>{if(!group)void autoJoin();}).catch(err=>{stop();showJoin();render();notice("恢復小組失敗："+err.message);});
 });
 window.addEventListener("beforeunload",()=>unsubscribe?.());
 render();
