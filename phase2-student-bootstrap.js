@@ -83,7 +83,7 @@ async function autoJoin(){
    if(allowed(prior)){qrPending=null;activate(prior);return;}
    throw Error("此手機已加入其他活動，請使用未加入過活動的瀏覽器");
   }
-  const {data}=await httpsCallable(getFunctions(auth.app,"asia-east1"),"joinPhase2Group")({groupId:pending.groupId,code:pending.code});
+  const {data}=await httpsCallable(getFunctions(auth.app,"asia-east1"),PHASE2_EVENT.joinCallable||"joinPhase2Group")({groupId:pending.groupId,code:pending.code});
   if(!allowed(data)||!data.studentCode)throw Error("後端回傳了無效的小組");
   cacheVerifiedGroup(data);qrPending=null;activate(data);
   notice("加入成功！本組 QR Code 可以供其他組員重複掃描。");
