@@ -10,7 +10,15 @@ export function createPhase2EmulatorCandidate({db,bucket,serverTimestamp,makeErr
     process.env.GCLOUD_PROJECT!=="demo-taipei-isolated-pilot")
   throw Error("Phase2 candidate must run only with isolated Firebase emulators");
  const submit=createSubmissionHandler({
-  db,bucket,serverTimestamp,makeError,emulatorPilotScope:PHASE2_SERVER_CANDIDATE
+  db,bucket,serverTimestamp,makeError,emulatorPilotScope:PHASE2_SERVER_CANDIDATE,
+  // Firestore transaction reads the previous mission before creating this one.
+  // Retries will re-check this precondition after any concurrent change.
+  transactionGuard:async({tx,db,input,base,makeError})=>{
+   if(input.missionId<=1)return;
+   const previous=await tx.get(db.doc(`${base}/missions/${input.missionId-1}`));
+   if(!previous.exists||previous.data()?.status!=="completed")
+    throw makeError("failed-precondition","請先完成上一關");
+  }
  });
  return async function submitPhase2Candidate({uid,anonymous,data}){
   await requirePhase2Prerequisites({db,data,uid,anonymous,makeError});
