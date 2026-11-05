@@ -26,11 +26,12 @@ export function validateGroupPayload(data) {
     const langs=[1,2,3,4].map(i=>answers[`lang${i}_lang`]);
     if(!langs.every(filled) || !unique(langs)) throw Error("請填寫四種不同語言");
   }
-  if(missionId===3 && !filled(answers.restaurant)) throw Error("請填寫餐廳名稱");
+  // Restaurant names are optional in Phase2; legacy activity contracts remain unchanged.
+  if(missionId===3 && !["taipei2026","taipei2026rehearsal"].includes(activityId) && !filled(answers.restaurant)) throw Error("請填寫餐廳名稱");
   if(missionId===4) {
     const continents=[1,2,3].map(i=>answers[`c${i}_continent`]);
     if(!continents.every(v=>["亞洲","歐洲","非洲","美洲","大洋洲"].includes(v)) || !unique(continents)) throw Error("請選三個不同洲");
-    for(let i=1;i<=3;i++)if(!filled(answers[`c${i}_country`]) || !filled(answers[`c${i}_restaurant`]))throw Error("請填完整餐廳資料");
+    for(let i=1;i<=3;i++)if(!filled(answers[`c${i}_country`]) || (!["taipei2026","taipei2026rehearsal"].includes(activityId) && !filled(answers[`c${i}_restaurant`])))throw Error("請填完整國家資料");
   }
   if(missionId===5) {
     const countries=[1,2,3].map(i=>answers[`p${i}_country`]);
