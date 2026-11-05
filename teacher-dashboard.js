@@ -82,7 +82,8 @@ async function showBoard(user){
     // Do not request member or invite data for this dashboard.
     const snaps=await Promise.all([1,2,3,4,5].map(n=>getDoc(doc(db,"activities",activityId,"groups",item.id,"missions",String(n)))));
     if(generation!==currentGeneration)return;
-    status.textContent=`已完成 ${snaps.filter(s=>s.exists()&&s.data().status==="completed").length}/5 關`;
+    const completedCount=snaps.filter(s=>s.exists()&&s.data().status==="completed").length;
+    status.textContent=`已完成 ${completedCount}/5 關｜最終任務：${completedCount===5?"已解鎖":"未解鎖"}`;
   }
  }catch(err){
   if(generation!==currentGeneration)return;
@@ -101,7 +102,8 @@ async function showGroup(groupId,name){
  try{
   const snaps=await Promise.all([1,2,3,4,5].map(n=>getDoc(doc(db,"activities",activityId,"groups",groupId,"missions",String(n)))));
   if(generation!==currentGeneration)return;
-  detailStatus.textContent=`已完成 ${snaps.filter(s=>s.exists()&&s.data().status==="completed").length}/5 關`;
+  const completedCount=snaps.filter(s=>s.exists()&&s.data().status==="completed").length;
+  detailStatus.textContent=`已完成 ${completedCount}/5 關｜最終任務：${completedCount===5?"已解鎖":"未解鎖"}`;
   for(let i=0;i<5;i++){
    const snap=snaps[i];
    const box=text("section","","card");
