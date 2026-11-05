@@ -15,6 +15,8 @@ test("Phone preview includes read-only teacher dashboard and rehearsal selector"
  assert.match(js,/submittedByCode/);
  assert.match(js,/submittedAt/);
  assert.match(js,/photoPaths/);
+ assert.match(js,/Promise[.]race/);
+ assert.match(js,/照片讀取逾時/);
  assert.match(js,/getBlob\(ref\(storage,path\)/);
  for(const disallowed of ["setDoc(","addDoc(","deleteDoc(","updateDoc(","writeBatch(","getDownloadURL("])
   assert.ok(!js.includes(disallowed),"Teacher must be read-only: "+disallowed);
