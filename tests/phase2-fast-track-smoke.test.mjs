@@ -39,3 +39,9 @@ test("Reusable Phase2 QR enrollment is separate from old single-use invitations"
  assert.match(setup,/STUDENTS_PER_GROUP=7/);
  assert.match(setup,/joinTokenHash/);
 });
+
+test("Teacher dashboard explicitly indicates final unlock without extra surveillance fields",async()=>{
+ const dashboard=await read("teacher-dashboard.js");
+ assert.match(dashboard,/最終任務：/);
+ assert.match(dashboard,/completedCount===5/);
+});
