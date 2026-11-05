@@ -31,7 +31,6 @@ const missions = [
     intro: "找到一間具有 Halal／清真認證的餐廳。",
     tip: "賣印度料理、中東料理或沒有豬肉，不一定代表有清真認證。請找到真正的認證或 Halal 標示。",
     fields: [
-      {type:"text", key:"restaurant", label:"餐廳名稱", placeholder:"輸入餐廳名稱"},
       {type:"photo", key:"photo1", label:"拍攝餐廳招牌"},
       {type:"photo", key:"photo2", label:"拍攝清真認證／Halal 標示"}
     ]
@@ -226,7 +225,6 @@ function renderFields(m, ms){
           ${["","亞洲","歐洲","非洲","美洲","大洋洲"].map(v=>`<option value="${v}" ${ms.data[field.key+"_continent"]===v?"selected":""}>${v||"選擇洲別"}</option>`).join("")}
         </select>
         <input data-key="${field.key}_country" type="text" value="${escapeAttr(ms.data[field.key+"_country"]||"")}" placeholder="料理國家">
-        <input data-key="${field.key}_restaurant" type="text" value="${escapeAttr(ms.data[field.key+"_restaurant"]||"")}" placeholder="餐廳名稱">
         ${photoFieldHTML(field.key+"_photo","餐廳招牌照片",ms.data[field.key+"_photo"])}
       `;
     } else if(field.type==="product"){
@@ -292,11 +290,11 @@ function validateMission(m, ms){
     const names = langs.map(k=>(d[k+"_lang"]||"").trim().toLowerCase());
     return langs.every(k=>d[k+"_lang"] && d[k+"_photo"]) && new Set(names).size===4;
   }
-  if(m.id===3) return d.restaurant && d.photo1 && d.photo2;
+  if(m.id===3) return d.photo1 && d.photo2;
   if(m.id===4){
     const ks=["c1","c2","c3"];
     const continents=ks.map(k=>d[k+"_continent"]);
-    return ks.every(k=>d[k+"_continent"]&&d[k+"_country"]&&d[k+"_restaurant"]&&d[k+"_photo"]) && new Set(continents).size===3;
+    return ks.every(k=>d[k+"_continent"]&&d[k+"_country"]&&d[k+"_photo"]) && new Set(continents).size===3;
   }
   if(m.id===5){
     const ks=["p1","p2","p3"];
