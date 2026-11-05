@@ -24,3 +24,17 @@ test("Teacher preview can select only explicitly allowed sandbox",async()=>{
 test("Existing five original pilot entrypoints are still separate files",async()=>{
  for(let n=1;n<=5;n++)assert.match(await read(`functions/pilot2026-stage${n}-entry.js`),new RegExp(`submitPilot2026Stage${n}`));
 });
+
+test("Reusable Phase2 QR enrollment is separate from old single-use invitations",async()=>{
+ const entry=await read("functions/phase2-live-entry.js");
+ const boot=await read("phase2-student-bootstrap.js");
+ const setup=await read("functions/scripts/create-phase2-three-groups.mjs");
+ assert.match(entry,/export const joinPhase2Group=onCall/);
+ assert.match(entry,/memberCount/);
+ assert.match(entry,/maxMembers!==7/);
+ assert.match(boot,/readAndClearPhase2Qr/);
+ assert.match(boot,/joinPhase2Group/);
+ assert.doesNotMatch(boot,/joinByInvitation/);
+ assert.match(setup,/STUDENTS_PER_GROUP=7/);
+ assert.match(setup,/joinTokenHash/);
+});
