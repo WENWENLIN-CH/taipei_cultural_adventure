@@ -22,5 +22,7 @@ test("Phone preview includes read-only teacher dashboard and rehearsal selector"
   assert.ok(!js.includes(disallowed),"Teacher must be read-only: "+disallowed);
  assert.match(cfg,/activityId:"taipei2026rehearsal"/);
  assert.match(cfg,/enabled:true/);
+ assert.match(readFileSync(root+"phase2-student-quest.js","utf8"),/window[.]cloudQuestShowSharedMission/);
+ assert.match(readFileSync(root+"phase2-shared-results.js","utf8"),/getBlob/);
  assert.equal(readFileSync("phase2-event-config.js","utf8").includes("enabled:false"),true);
 });
