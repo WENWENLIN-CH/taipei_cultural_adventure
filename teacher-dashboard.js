@@ -134,7 +134,15 @@ async function showGroup(groupId,name){
      // this mission card or block rendering missions 4 and 5.
      void (async()=>{
        try{
-         const blob=await getBlob(ref(storage,path),2*1024*1024);
+         // Firebase Storage browser downloads require bucket CORS. Surface a
+         // bounded diagnostic instead of leaving teachers staring at "載入中".
+         const request=getBlob(ref(storage,path),2*1024*1024);
+         const blob=await Promise.race([
+           request,
+           new Promise((_,reject)=>setTimeout(()=>{
+             reject(new Error("照片讀取逾時。請檢查 Storage CORS、網路及教師照片讀取權限。"));
+           },15000))
+         ]);
          if(generation!==currentGeneration)return;
          // Cloud Storage may return application/octet-stream or an empty MIME.
          // Validate JPEG signature instead of trusting a response Content-Type.
