@@ -10,10 +10,12 @@ const projectId="demo-taipei-phase2-live-rules";
 if(process.env.GCLOUD_PROJECT!==projectId||
  !process.env.FIRESTORE_EMULATOR_HOST||!process.env.FIREBASE_STORAGE_EMULATOR_HOST)
  throw Error("Phase2 rules test requires exact demo project + local Firestore/Storage emulators");
+const merged=process.env.PHASE2_LIVE_MERGED==="YES";
+const rulePath=kind=>merged?`.phase2-live-rules-backup/merged-${kind}.rules`:`docs/${kind}-phase2-live-candidate.rules`;
 const env=await initializeTestEnvironment({
  projectId,
- firestore:{host:"127.0.0.1",port:8080,rules:readFileSync("docs/firestore-phase2-live-candidate.rules","utf8")},
- storage:{host:"127.0.0.1",port:9199,rules:readFileSync("docs/storage-phase2-live-candidate.rules","utf8")}
+ firestore:{host:"127.0.0.1",port:8080,rules:readFileSync(rulePath("firestore"),"utf8")},
+ storage:{host:"127.0.0.1",port:9199,rules:readFileSync(rulePath("storage"),"utf8")}
 });
 const bucket=`gs://${projectId}.firebasestorage.app`;
 const path=(g,id)=>`activities/taipei2026/groups/${g}/${id}`;
