@@ -84,6 +84,29 @@ try{
   assert.equal(await completed("group02"),0);
   await assert.rejects(submit({uid:people.group01[1],anonymous:true,data:p}),{code:"already-exists"});
  });
+ await test("Atomic transaction blocks submission if previous stage changes after preflight",async()=>{
+  const g="group01",uid=people[g][1],p=payload(g,2,uid);
+  const prev=db.doc(`${base(g)}/missions/1`);
+  await ready(p);
+  // The preliminary gate sees completed. Simulate another operation changing
+  // Stage1 immediately before the actual Firestore completion transaction.
+  const wrappedDb={
+   doc:path=>db.doc(path),
+   runTransaction:async fn=>{
+    await prev.update({status:"pending"});
+    return db.runTransaction(fn);
+   }
+  };
+  const raceSubmit=createPhase2EmulatorCandidate({
+   db:wrappedDb,bucket,serverTimestamp:()=>FieldValue.serverTimestamp(),makeError
+  });
+  try{
+   await assert.rejects(raceSubmit({uid,anonymous:true,data:p}),{code:"failed-precondition"});
+   assert.equal((await db.doc(`${base(g)}/missions/2`).get()).exists,false);
+  }finally{
+   await prev.update({status:"completed"});
+  }
+ });
  await test("Same-group second member can finish another mission, first member observes shared completion",async()=>{
   const p=payload("group01",2,people.group01[1]);
   await ready(p);
