@@ -1,0 +1,20 @@
+{
+  "hosting": {
+    "public": ".firebase-phase2-rehearsal-hosting",
+    "ignore": [
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "headers": [
+      {
+        "source": "**",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-store"
+          }
+        ]
+      }
+    ]
+  }
+}
