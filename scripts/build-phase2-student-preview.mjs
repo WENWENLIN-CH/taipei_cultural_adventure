@@ -20,14 +20,14 @@ html=once(html,"完成印章只根據 Firestore 的小組成果顯示；所有�
  "每組每關只送一份共同成果，進度依 Firestore 更新；五關完成自動解鎖圓山／酒泉街謎題。","description");
 html=once(html,'<script src="five-quest.js"></script>','<script src="phase2-student-quest.js"></script>',"quest client");
 html=once(html,'<script type="module" src="cloud-quest-bootstrap.js"></script>','<script type="module" src="phase2-student-bootstrap.js"></script>',"student bootstrap");
-html=once(html,"Firebase 小組加入｜開發預覽","台北島｜學生加入活動","join heading");
+html=once(html,"Firebase 小組加入｜開發預覽","台北島｜掃描組別 QR Code 加入活動","join heading");
 js=once(js,'const STORAGE_KEY = "taipeiCulturalQuestFiveReadOnlyV1";',
  'const STORAGE_KEY = "taipeiCulturalQuestPhase2CandidateV1";',"draft key");
 js=once(js,"確認代表第一組提交第三關共同成果？提交後不可自行修改，並會上傳 2 張照片。",
  "確定提交本組這一關的共同成果嗎？成功後同組成員都會看到完成狀態，無法自行修改。","confirmation");
 await writeFile(join(dir,"phase2-student-quest.html"),html);
 await writeFile(join(dir,"phase2-student-quest.js"),js);
-for(const file of ["phase2-student-bootstrap.js","phase2-submission.js","phase2-event-config.js"])
+for(const file of ["phase2-student-bootstrap.js","phase2-submission.js","phase2-event-config.js","phase2-qr-link.js","group-service.js"])
  await copyFile(join(root,file),join(dir,file));
 if(!html.includes('src="phase2-student-bootstrap.js"')||
  !js.includes("taipeiCulturalQuestPhase2CandidateV1")||
