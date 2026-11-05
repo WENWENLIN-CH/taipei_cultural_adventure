@@ -9,7 +9,7 @@ for(const filename of ["submission-handler.js","submission-core.js","pilot-scope
  await copyFile(join(src,filename),join(target,filename));
 await copyFile(join(src,"phase2-live-entry.js"),join(target,"index.js"));
 const pkg=JSON.parse(await readFile(join(src,"package.json"),"utf8"));
-await writeFile(join(target,"package.json",JSON.stringify({
+await writeFile(join(target,"package.json"),JSON.stringify({
  name:"taipei-phase2-isolated-functions",private:true,type:"module",
  engines:{node:"22"},main:"index.js",
  dependencies:{"firebase-admin":pkg.dependencies["firebase-admin"],"firebase-functions":pkg.dependencies["firebase-functions"]}
