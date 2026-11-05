@@ -26,11 +26,10 @@ export function validateSubmission(missionId, answers, photoPaths) {
     const langs=[1,2,3,4].map(i=>answers[`lang${i}_lang`]);
     if(!langs.every(filled)||!distinct(langs)) throw new Error("請填寫四種不同語言");
   }
-  if(n===3 && !filled(answers.restaurant)) throw new Error("請填寫餐廳名稱");
   if(n===4) {
     const continents=[1,2,3].map(i=>answers[`c${i}_continent`]);
     if(!continents.every(x=>["亞洲","歐洲","非洲","美洲","大洋洲"].includes(x))||!distinct(continents)) throw new Error("請選擇三個不同洲");
-    for(let i=1;i<=3;i++) if(!filled(answers[`c${i}_country`])||!filled(answers[`c${i}_restaurant`])) throw new Error("請完整填寫三間餐廳");
+    for(let i=1;i<=3;i++) if(!filled(answers[`c${i}_country`])) throw new Error("請完整填寫三個國家");
   }
   if(n===5) {
     const countries=[1,2,3].map(i=>answers[`p${i}_country`]);
