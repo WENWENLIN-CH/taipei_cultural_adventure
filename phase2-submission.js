@@ -11,7 +11,7 @@ export async function submitPhase2Mission({missionId,answers,photoPaths}){
  if(group?.activityId!==PHASE2_EVENT.activityId || !PHASE2_EVENT.groups.includes(group?.groupId))
   throw Error("請使用本活動已核准的小組身分");
  validateSubmission(Number(missionId),answers,photoPaths);
- return (await httpsCallable(getFunctions(auth.app,"asia-east1"),"submitPhase2Mission")({
+ return (await httpsCallable(getFunctions(auth.app,"asia-east1"),PHASE2_EVENT.submitCallable||"submitPhase2Mission")({
   activityId:group.activityId,groupId:group.groupId,missionId:Number(missionId),answers,photoPaths
  })).data;
 }
