@@ -1,0 +1,33 @@
+{
+  "functions": {
+    "source": ".firebase-phase2-callable-emulator",
+    "codebase": "phase2-emu"
+  },
+  "firestore": {
+    "rules": "docs/firestore-phase2-live-candidate.rules"
+  },
+  "storage": {
+    "rules": "docs/storage-phase2-live-candidate.rules"
+  },
+  "emulators": {
+    "auth": {
+      "host": "127.0.0.1",
+      "port": 9099
+    },
+    "functions": {
+      "host": "127.0.0.1",
+      "port": 5001
+    },
+    "firestore": {
+      "host": "127.0.0.1",
+      "port": 8080
+    },
+    "storage": {
+      "host": "127.0.0.1",
+      "port": 9199
+    },
+    "ui": {
+      "enabled": false
+    }
+  }
+}
