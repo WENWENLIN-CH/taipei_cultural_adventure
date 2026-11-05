@@ -8,7 +8,7 @@ execFileSync(process.execPath,["scripts/build-phase2-student-preview.mjs"],{cwd:
 const files=[
  "phase2-student-quest.html","phase2-student-quest.js",
  "phase2-student-bootstrap.js","phase2-submission.js",
- "phase2-event-config.js","phase2-qr-link.js",
+ "phase2-event-config.js","phase2-qr-link.js","phase2-shared-results.js",
  "firebase-auth.js","firebase-config.js","group-service.js",
  "mission-cloud-flow.js","mission-upload-recovery.js",
  "mission-form-adapter.js","photo-upload.js","photo-retry-policy.js",
