@@ -41,3 +41,15 @@ test("Official release codebase packaging remains scoped to two Phase2 live call
  assert.match(core,/taipei2026rehearsal/);
  assert.match(core,/taipei2026/);
 });
+
+test("Official admission accepts 10 seats and preserves 7-seat rehearsal; gated updater never recreates groups",()=>{
+ const join=readFileSync("functions/phase2-join-handler.js","utf8");
+ const updater=readFileSync("functions/scripts/upgrade-phase2-official-capacity.mjs","utf8");
+ const check=readFileSync("functions/scripts/check-phase2-official-launch-state.mjs","utf8");
+ assert.match(join,/\[7,10\][.]includes\(info[.]maxMembers\)/);
+ assert.match(join,/count>=info[.]maxMembers/);
+ assert.match(updater,/ALLOW_PHASE2_CAPACITY_CHANGE/);
+ assert.match(updater,/tx[.]update\(refs\[i\],\{maxMembers:10\}\)/);
+ assert.doesNotMatch(updater,/tx[.]create\(/);
+ assert.match(check,/d[.]maxMembers===10/);
+});
