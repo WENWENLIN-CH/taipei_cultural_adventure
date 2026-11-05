@@ -21,7 +21,8 @@
     "test:pilot2026-stage2": "node --test test/pilot2026-stage2-emulator.test.mjs",
     "test:pilot2026-stage3": "node --test test/pilot2026-stage3-emulator.test.mjs",
     "test:pilot2026-stage4": "node --test test/pilot2026-stage4-emulator.test.mjs",
-    "test:pilot2026-stage5": "node --test test/pilot2026-stage5-emulator.test.mjs"
+    "test:pilot2026-stage5": "node --test test/pilot2026-stage5-emulator.test.mjs",
+    "test:phase2-submission": "node --test test/phase2-three-groups-submission.test.mjs"
   },
   "dependencies": {
     "firebase-admin": "^13.0.0",
