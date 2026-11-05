@@ -66,3 +66,10 @@ export async function resumeGroup() {
 export function clearLocalGroup() {
   localStorage.removeItem(MEMBERSHIP_CACHE_KEY);
 }
+
+export function cacheVerifiedGroup(group){
+ const uid=requireStudent();
+ if(!group||![group.activityId,group.groupId,group.studentCode].every(x=>typeof x==="string"&&ID_PATTERN.test(x)))
+  throw Error("伺服器回傳的小組身分不正確");
+ localStorage.setItem(MEMBERSHIP_CACHE_KEY,JSON.stringify({uid,...group}));
+}
