@@ -112,3 +112,20 @@ npm run test:phase2-three-groups-submission
 - 預期 6 項測試通過；未於 Cloud Shell 執行前**不得宣稱已通過**。
 
 **尚未完成：** 兩名成員真實 Auth 邀請交易、跨手機即時同步、正式活動專用 Function 與順序約束及更完整的 3 組 6 手機端到端測試。必須先在模擬環境中逐項完成才可進入正式部署。
+
+## 第二階段 A — 第三批：六張一次性邀請碼（待 Cloud Shell 驗證）
+第二批三組五關後端整合測試由使用者回報 **6 pass / 0 fail**。
+
+新增 `tests/phase2-six-invites.test.mjs`，在 `demo-taipei-phase2` 的 Firestore emulator 內建立 `phase2sandbox` 三組／六個模擬 UID／六張各不相同的一次性邀請，使用與 `group-service.js` 一致的 transaction 欄位及檢查：
+- 逐一領取邀請碼並建立會員文件，檢查 claimedBy、studentCode、inviteId；
+- 同組可讀取任務，跨組不能讀取；
+- 已領邀請不可重用；不可只建立會員文件或列舉邀請；
+- 原 pilot2026 的資料仍存在且無法被沙盒帳號讀取。
+
+指令（**無部署**）：
+```bash
+cd ~/taipei_cultural_adventure
+git pull origin feature/firebase-sync
+npm run test:phase2-six-invites
+```
+預期 6 tests、6 pass、0 fail。此測試模擬六個不同使用者 UID，但**未連線 Auth Emulator 產生真正的匿名認證 token**，也尚未驗證真實手機的登入與 localStorage 恢復。後續須另以 Auth Emulator＋瀏覽器整合測試驗證。
