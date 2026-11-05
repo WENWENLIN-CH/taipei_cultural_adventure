@@ -39,3 +39,6 @@ serviceAccountKey.json
 # Phase2 private invitations and generated function package
 .phase2-private-invites.txt
 .firebase-phase2-live-functions/
+
+# Local-only Phase2 HTTPS Callable emulator package
+.firebase-phase2-callable-emulator/
