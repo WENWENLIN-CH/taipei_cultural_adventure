@@ -35,3 +35,7 @@ serviceAccountKey.json
 
 # Generated isolated Stage5 Functions package
 .firebase-pilot2026-stage5-functions/
+
+# Phase2 private invitations and generated function package
+.phase2-private-invites.txt
+.firebase-phase2-live-functions/
