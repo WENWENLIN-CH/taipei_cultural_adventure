@@ -28,7 +28,9 @@ test("Official Hosting candidate is scoped, spoiler-free, teacher read-only, sou
  assert.match(teacherJs,/getBlob/);
  for(const forbidden of ["addDoc(","setDoc(","updateDoc(","deleteDoc(","getDownloadURL("])
   assert.ok(!teacherJs.includes(forbidden));
- assert.equal(readdirSync(dir).length,19);
+ assert.equal(readdirSync(dir).length,20);
+ assert.match(studentJs,/window[.]cloudQuestShowSharedMission/);
+ assert.match(readFileSync(dir+"phase2-shared-results.js","utf8"),/getBlob/);
 });
 test("Official release codebase packaging remains scoped to two Phase2 live callables",()=>{
  execFileSync(process.execPath,["scripts/build-phase2-live-functions.mjs"],{stdio:"pipe"});
