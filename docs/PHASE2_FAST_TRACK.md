@@ -66,3 +66,11 @@ node scripts/build-phase2-live-functions.mjs
 6. No blanket `firebase deploy`, no modification of original `pilot2026` data or Functions.
 
 **Caution:** Reusable QR is a bearer credential: anyone with a copy can try joining while slots remain. Keep QR cards within the intended class and use the server cap. No automatic replacement of lost devices was requested.
+
+## Production rules release guard (after merged Emulator tests passed)
+- Confirmed 2026-11-05: 7/7 merged real-baseline rules tests passed in Cloud Shell.
+- `firebase.phase2-live-rules-deploy.json` references only the LOCAL merged Firestore and Storage rules. It contains no Functions or Hosting target.
+- `scripts/preflight-phase2-rules-release.mjs` reads currently deployed Rules and refuses release if hashes differ from the backed-up verified November 4 rules. This does not deploy or modify Firebase.
+- Before executing any production deploy, rerun `npm run test:phase2-merged-live-rules` and `node scripts/preflight-phase2-rules-release.mjs` and check all pass. A production rules deploy must target the explicit configuration, and must be independently authorized by the operator.
+- Never run a blanket `firebase deploy`; never deploy the draft rules from `firestore.rules` or `storage.rules` by accident.
+- Do not distribute QR codes until Functions, Hosting, activity records, teacher permissions and phone checks have been validated.
