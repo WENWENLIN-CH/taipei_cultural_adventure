@@ -45,3 +45,10 @@ test("Teacher dashboard explicitly indicates final unlock without extra surveill
  assert.match(dashboard,/最終任務：/);
  assert.match(dashboard,/completedCount===5/);
 });
+
+test("Phase2 production deployment package includes the correct non-secret allowlist",async()=>{
+ const build=await read("scripts/build-phase2-live-functions.mjs");
+ assert.match(build,/PHASE2_ACTIVITY_ID=taipei2026/);
+ assert.match(build,/PHASE2_GROUP_IDS=group01,group02,group03/);
+ assert.match(build,/\.env\.taipei-cultural-adventure/);
+});
