@@ -3,7 +3,7 @@
 import {PHOTO_KEYS, validateGroupPayload, parseVerifiedPhotoPath} from "./submission-core.js";
 import {permittedByScope} from "./pilot-scope.js";
 
-export function createSubmissionHandler({db,bucket,serverTimestamp,makeError,emulatorPilotScope=null,approvedLiveScope=null}) {
+export function createSubmissionHandler({db,bucket,serverTimestamp,makeError,emulatorPilotScope=null,approvedLiveScope=null,transactionGuard=null}) {
   const fail=(code,message)=>{throw makeError(code,message);};
   return async function handleSubmission({uid,anonymous,data}) {
     if(!uid || !anonymous) return fail("unauthenticated","請先匿名登入");
@@ -66,6 +66,9 @@ export function createSubmissionHandler({db,bucket,serverTimestamp,makeError,emu
       const [memberNow,existing]=await Promise.all([tx.get(memberRef),tx.get(missionRef)]);
       if(!memberNow.exists || memberNow.data()?.revoked===true) return fail("permission-denied","組員資格已失效");
       if(existing.exists) return fail("already-exists","這關已有共同成果，不可重複提交");
+      // Optional Phase2-only guard: read prerequisite within the same atomic transaction.
+      // Legacy pilot handlers omit this option and preserve their original behavior.
+      if(transactionGuard!==null)await transactionGuard({tx,db,input,base,uid,makeError});
       tx.create(missionRef,{
         status:"completed", answers:input.answers, photoPaths:input.photoPaths,
         submittedByUid:uid, submittedByCode:memberNow.data().studentCode,
