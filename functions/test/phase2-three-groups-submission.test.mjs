@@ -91,8 +91,11 @@ try{
    }
    assert.equal(await completed(g),5);
   }
-  for(const g of groupIds)
-   await assert.rejects(submit({uid:people[g][0],anonymous:true,data:payload(g,5,people[g][0])}),{code:"already-exists"});
+  for(const g of groupIds){
+   // Mission 5 was submitted by student02 (5 % 2 = 1); retry with that same uploaded photo path.
+   const originalSubmitter=people[g][5%2];
+   await assert.rejects(submit({uid:originalSubmitter,anonymous:true,data:payload(g,5,originalSubmitter)}),{code:"already-exists"});
+  }
  });
  await test("Sandbox completion never creates or modifies pilot2026 missions",async()=>{
   const snap=await db.doc("activities/pilot2026/groups/group01/missions/5").get();
