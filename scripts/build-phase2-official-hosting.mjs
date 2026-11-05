@@ -48,7 +48,13 @@ if(!teacherJs.includes('ALLOWED_ACTIVITIES=Object.freeze(["taipei2026"])')||
  !teacherJs.includes('let activityId="taipei2026"'))
  throw Error("Official teacher scope unsafe");
 await writeFile(teacherJsPath,teacherJs);
-const studentHtml=await readFile(join(output,"phase2-student-quest.html"),"utf8");
+const studentHtmlPath=join(output,"phase2-student-quest.html");
+let studentHtml=await readFile(studentHtmlPath,"utf8");
+const lockedText="本頁目前為開放前測試版，尚不接受加入或提交。活動開放後，掃描老師提供的小組 QR Code 即可自動加入。";
+if(!studentHtml.includes(lockedText))throw Error("Official student activation notice mismatch");
+studentHtml=studentHtml.replace(lockedText,
+ "掃描老師提供的小組 QR Code 即可自動加入；同組共享闖關進度，每關共同提交一份成果。");
+await writeFile(studentHtmlPath,studentHtml);
 const studentJs=await readFile(join(output,"phase2-student-quest.js"),"utf8");
 if(studentHtml.includes("酒泉街謎題")||studentHtml.includes("五關完成自動解鎖圓山")||
  !studentHtml.includes("神秘的最終任務")||
