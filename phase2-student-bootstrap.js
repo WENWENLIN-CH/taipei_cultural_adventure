@@ -64,12 +64,21 @@ function activate(g){
  render();
 }
 async function restore(){
+ // A pending restore must never undo a group that has just joined.
+ if(group)return true;
  const existing=await resumeGroup();
- if(existing && allowed(existing))activate(existing);
- else{
-  stop();showJoin();render();
-  if(existing)notice("這個瀏覽器已加入另一個活動，請勿直接覆寫原有身分");
+ if(group)return true;
+ if(existing && allowed(existing)){
+  activate(existing);
+  return true;
  }
+ // Do not clear the entry screen while a callable QR join is in progress.
+ if(!joining){
+  showJoin();
+  render();
+ }
+ if(existing)notice("這個瀏覽器已加入另一個活動，請勿直接覆寫原有身分");
+ return false;
 }
 // A URL fragment holds the reusable per-group secret, then disappears from the URL.
 // No user-visible code entry is needed. Same phone restores the membership cache.
@@ -90,13 +99,25 @@ async function autoJoin(){
  }catch(err){notice("掃碼加入失敗："+err.message);}
  finally{joining=false;render();}
 }
+// Serialize auth callbacks. Concurrent restores used to race a successful QR join
+// and show the start screen after the island had already been activated.
+let authFlow=Promise.resolve();
 watchAuth(user=>{
- if(!user?.isAnonymous){
-  stop();showJoin();render();
-  if(!user&&qrPending)void studentSignIn().catch(err=>notice("匿名登入失敗："+err.message));
-  return;
- }
- void restore().then(()=>{if(!group)void autoJoin();}).catch(err=>{stop();showJoin();render();notice("恢復小組失敗："+err.message);});
+ authFlow=authFlow.catch(()=>{}).then(async()=>{
+  if(!user?.isAnonymous){
+   if(group)stop();
+   showJoin();render();
+   if(!user&&qrPending)await studentSignIn();
+   return;
+  }
+  if(group){render();return;}
+  const restored=await restore();
+  if(!restored&&!group&&qrPending)await autoJoin();
+ }).catch(err=>{
+  // Keep a verified membership visible even if a late auth callback fails.
+  if(!group){showJoin();render();}
+  notice("身分驗證或恢復失敗："+err.message);
+ });
 });
 window.addEventListener("beforeunload",()=>unsubscribe?.());
 render();
