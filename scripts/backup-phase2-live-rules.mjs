@@ -2,7 +2,7 @@
 // Never prints access tokens, QR secrets or full rule sources.
 // Files are local and ignored by Git; no production writes/deployments.
 import {execFileSync} from "node:child_process";
-import {mkdir,open} from "node:fs/promises";
+import {mkdir,open,writeFile} from "node:fs/promises";
 import {resolve,join} from "node:path";
 import {createHash} from "node:crypto";
 const project="taipei-cultural-adventure";
@@ -42,6 +42,7 @@ for(const {label,release} of selection){
   text:files[0].content,sha:createHash("sha256").update(files[0].content).digest("hex")});
 }
 await mkdir(dir,{recursive:true,mode:0o700});
+await writeFile(join(dir,".gitignore"),"*\n!.gitignore\n",{flag:"wx",mode:0o600});
 for(const r of results){
  const f=await open(join(dir,r.label+".rules"),"wx",0o600);
  try{await f.writeFile(r.text);}finally{await f.close();}
