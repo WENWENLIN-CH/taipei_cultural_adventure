@@ -75,7 +75,8 @@
     "test:phase2-reusable-qr": "firebase emulators:exec --project demo-taipei-phase2-qr --config firebase.phase2-qr-emulator.json --only firestore \"node --test functions/test/phase2-reusable-qr-emulator.test.mjs\"",
     "test:phase2-live-rules": "firebase emulators:exec --project demo-taipei-phase2-live-rules --config firebase.phase2-live-rules-emulator.json --only firestore,storage \"node --test tests/phase2-live-rules.test.mjs\"",
     "test:phase2-callable-http": "node scripts/build-phase2-callable-emulator.mjs && npm --prefix .firebase-phase2-callable-emulator install && firebase emulators:exec --project demo-taipei-isolated-pilot --config firebase.phase2-callable-emulator.json --only auth,functions,firestore,storage \"node --test functions/test/phase2-callable-http.test.mjs\"",
-    "test:phase2-merged-live-rules": "node scripts/merge-phase2-live-rules.mjs && PHASE2_LIVE_MERGED=YES firebase emulators:exec --project demo-taipei-phase2-live-rules --config firebase.phase2-merged-rules-emulator.json --only firestore,storage \"node --test tests/phase2-live-rules.test.mjs\""
+    "test:phase2-merged-live-rules": "node scripts/merge-phase2-live-rules.mjs && PHASE2_LIVE_MERGED=YES firebase emulators:exec --project demo-taipei-phase2-live-rules --config firebase.phase2-merged-rules-emulator.json --only firestore,storage \"node --test tests/phase2-live-rules.test.mjs\"",
+    "test:phase2-rehearsal-rules": "node scripts/build-phase2-rehearsal-rules.mjs && firebase emulators:exec --project demo-taipei-rehearsal-rules --config firebase.phase2-rehearsal-rules-emulator.json --only firestore,storage \"node --test tests/phase2-rehearsal-rules.test.mjs\""
   },
   "devDependencies": {
     "@firebase/rules-unit-testing": "^5.0.0",
