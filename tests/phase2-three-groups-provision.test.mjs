@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {execFileSync} from "node:child_process";
+import {readFileSync} from "node:fs";
 import {makePlan,makeGroupKeys,hashCode,verifyApply,applyPlan,GROUP_IDS} from "../functions/scripts/create-phase2-three-groups.mjs";
 test("Three reusable QR groups have 7 seats each",()=>{
  const p=makePlan();
@@ -40,4 +41,13 @@ test("Dry run never writes or reveals secrets",()=>{
  assert.match(out,/DRY_RUN_NO_WRITES/);
  assert.match(out,/"qrCodesToGenerate": 3/);
  assert.doesNotMatch(out,/[a-f0-9]{48}/);
+});
+
+test("Live provisioning verifies admin SDK, ADC, and empty groups before writing secret file",()=>{
+ const src=readFileSync("functions/scripts/create-phase2-three-groups.mjs","utf8");
+ const outputPos=src.indexOf("const output=await open(resolve(OUTPUT)");
+ assert.ok(src.indexOf('createRequire(resolve("functions/package.json"))')>0);
+ assert.ok(src.indexOf("await credential.getAccessToken()")>0);
+ assert.ok(src.indexOf("await db.getAll(...refs)")>0);
+ assert.ok(outputPos>src.indexOf("await db.getAll(...refs)"));
 });
