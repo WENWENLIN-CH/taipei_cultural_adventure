@@ -21,6 +21,18 @@ html=once(html,"完成印章只根據 Firestore 的小組成果顯示；所有�
 html=once(html,'<script src="five-quest.js"></script>','<script src="phase2-student-quest.js"></script>',"quest client");
 html=once(html,'<script type="module" src="cloud-quest-bootstrap.js"></script>','<script type="module" src="phase2-student-bootstrap.js"></script>',"student bootstrap");
 html=once(html,"Firebase 小組加入｜開發預覽","台北島｜掃描組別 QR Code 加入活動","join heading");
+
+// Remove every legacy manual enrollment control from the Phase2 student page.
+// QR fragment + Firebase anonymous sign-in are handled automatically by the bootstrap.
+html=once(html,
+ '<button id="cloudLogin" class="primary-btn" type="button">學生匿名登入</button><label>專屬加入碼<input id="cloudInvite" type="text" inputmode="text" autocomplete="off" placeholder="48 位加入碼"></label><button id="cloudJoin" class="primary-btn" type="button">加入小組</button>',
+ '<p id="phase2JoinInstruction">請使用老師發給你的小組 QR Code 進入活動；不必輸入帳號、密碼或加入碼。</p>',
+ "legacy manual enrollment controls");
+html=once(html,
+ "三組學生共用五關進度，提交完成後自動過關。開放前須完成 Firebase 權限與活動資料驗收。",
+ "本頁目前為開放前測試版，尚不接受加入或提交。活動開放後，掃描老師提供的小組 QR Code 即可自動加入。",
+ "locked release description");
+
 js=once(js,'const STORAGE_KEY = "taipeiCulturalQuestFiveReadOnlyV1";',
  'const STORAGE_KEY = "taipeiCulturalQuestPhase2CandidateV1";',"draft key");
 js=once(js,"確認代表第一組提交第三關共同成果？提交後不可自行修改，並會上傳 2 張照片。",
