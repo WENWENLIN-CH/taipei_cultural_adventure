@@ -17,6 +17,10 @@ test("Phase2 standalone student five-quest candidate builds with submissions loc
  assert.match(boot,/watchGroupMissions/);
  assert.match(boot,/submitOriginalMission/);
  assert.match(config,/enabled:false/);
+ assert.match(html,/phase2JoinInstruction/);
+ assert.doesNotMatch(html,/id="cloudInvite"|id="cloudLogin"|id="cloudJoin"|專屬加入碼/);
+ assert.doesNotMatch(boot,/getElementById\("cloudInvite"\)|getElementById\("cloudLogin"\)|getElementById\("cloudJoin"\)/);
+
 });
 test("Phase2 submission targets only its independent callable",()=>{
  const src=readFileSync("phase2-submission.js","utf8");
