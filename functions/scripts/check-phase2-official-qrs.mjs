@@ -29,7 +29,7 @@ const docs=await db.getAll(...groups.map(group=>db.doc("activities/taipei2026/gr
 for(let i=0;i<3;i++){
  const data=docs[i].data();
  const hashed=createHash("sha256").update(qr.get(groups[i])).digest("hex");
- if(!docs[i].exists||data?.joinTokenHash!==hashed||data?.memberCount!==0||data?.maxMembers!==7)
+ if(!docs[i].exists||data?.joinTokenHash!==hashed||data?.memberCount!==0||data?.maxMembers!==10)
   throw Error("Official QR or group state mismatch: "+groups[i]);
  console.log("PASS official QR hash matches Firestore: "+groups[i]+" (no secrets displayed)");
 }
