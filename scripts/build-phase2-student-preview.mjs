@@ -33,13 +33,15 @@ html=once(html,
  "本頁目前為開放前測試版，尚不接受加入或提交。活動開放後，掃描老師提供的小組 QR Code 即可自動加入。",
  "locked release description");
 
+js=once(js,'  showScreen("missionScreen");',
+ '  showScreen("missionScreen");\\n  window.cloudQuestShowSharedMission?.(m.id);',"same-group completed mission viewer");
 js=once(js,'const STORAGE_KEY = "taipeiCulturalQuestFiveReadOnlyV1";',
  'const STORAGE_KEY = "taipeiCulturalQuestPhase2CandidateV1";',"draft key");
 js=once(js,"確認代表第一組提交第三關共同成果？提交後不可自行修改，並會上傳 2 張照片。",
  "確定提交本組這一關的共同成果嗎？成功後同組成員都會看到完成狀態，無法自行修改。","confirmation");
 await writeFile(join(dir,"phase2-student-quest.html"),html);
 await writeFile(join(dir,"phase2-student-quest.js"),js);
-for(const file of ["phase2-student-bootstrap.js","phase2-submission.js","phase2-event-config.js","phase2-qr-link.js","group-service.js"])
+for(const file of ["phase2-student-bootstrap.js","phase2-submission.js","phase2-event-config.js","phase2-qr-link.js","group-service.js","phase2-shared-results.js"])
  await copyFile(join(root,file),join(dir,file));
 if(!html.includes('src="phase2-student-bootstrap.js"')||
  !js.includes("taipeiCulturalQuestPhase2CandidateV1")||
