@@ -1,0 +1,11 @@
+{
+  "functions": {
+    "source": ".firebase-phase2-rehearsal-functions",
+    "codebase": "phase2-rehearsal",
+    "ignore": [
+      "node_modules",
+      ".git",
+      "firebase-debug.log"
+    ]
+  }
+}
