@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {initializeTestEnvironment,assertSucceeds,assertFails} from "@firebase/rules-unit-testing";
 import {doc,setDoc,getDoc,updateDoc,collection,getDocs} from "firebase/firestore";
-import {ref,uploadBytes,getMetadata} from "firebase/storage";
+import {ref,uploadBytes,getMetadata,getBytes} from "firebase/storage";
 const project="demo-taipei-rehearsal-rules";
 if(process.env.GCLOUD_PROJECT!==project||
  !process.env.FIRESTORE_EMULATOR_HOST||!process.env.FIREBASE_STORAGE_EMULATOR_HOST)
@@ -23,6 +23,7 @@ try{
   for(const g of ["group01","group02","group03"])
    await setDoc(doc(ctx.firestore(),base+g),{joinTokenHash:"a".repeat(64),phase2:true,maxMembers:7,memberCount:1});
   await setDoc(doc(ctx.firestore(),p("group01","members/testA")),{studentCode:"G1-S01",revoked:false});
+  await setDoc(doc(ctx.firestore(),p("group01","members/testC")),{studentCode:"G1-S03",revoked:false});
   await setDoc(doc(ctx.firestore(),p("group02","members/testB")),{studentCode:"G2-S01",revoked:false});
   await setDoc(doc(ctx.firestore(),p("group01","members/revoked")),{studentCode:"G1-S02",revoked:true});
   await setDoc(doc(ctx.firestore(),p("group01","missions/1")),{status:"completed"});
@@ -49,6 +50,10 @@ try{
   const photo=p("group01","missions/1/testA/photo1.jpg");
   await assertSucceeds(uploadBytes(png(photo),jpeg,{contentType:"image/jpeg"}));
   await assertSucceeds(getMetadata(png(photo)));
+  const sameGroup=ref(auth("testC").storage("gs://"+project+".firebasestorage.app"),photo);
+  await assertSucceeds(getBytes(sameGroup));
+  const outsider=ref(auth("testB").storage("gs://"+project+".firebasestorage.app"),photo);
+  await assertFails(getBytes(outsider));
   await assertFails(uploadBytes(png(photo),jpeg,{contentType:"image/jpeg"}));
  });
  await test("Rehearsal JPEG cross-group and revoked upload rejected",async()=>{
