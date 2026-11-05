@@ -60,8 +60,18 @@ const closePos=pos-match[1].length;
 const addition=" || (activityId == 'taipei2026' && (groupId == 'group01' || groupId == 'group02' || groupId == 'group03') && (missionId == '1' || missionId == '2' || missionId == '3' || missionId == '4' || missionId == '5'))";
 storage=storage.slice(0,closePos)+addition+storage.slice(closePos);
 if(!storage.includes("taipei2026"))throw Error("Phase2 Storage allowlist not added");
-await writeFile(join(dir,"merged-firestore.rules"),firestore,{flag:"wx",mode:0o600});
-await writeFile(join(dir,"merged-storage.rules"),storage,{flag:"wx",mode:0o600});
+async function keepOrWrite(name,content){
+ const path=join(dir,name);
+ try{
+  const existing=await readFile(path,"utf8");
+  if(existing!==content)throw Error(name+" has unexpected content; refusing overwrite");
+ }catch(error){
+  if(error.code!=="ENOENT")throw error;
+  await writeFile(path,content,{flag:"wx",mode:0o600});
+ }
+}
+await keepOrWrite("merged-firestore.rules",firestore);
+await keepOrWrite("merged-storage.rules",storage);
 console.log(JSON.stringify({
  mode:"LOCAL_MERGE_NO_DEPLOY",
  sourceHashes:expected,
