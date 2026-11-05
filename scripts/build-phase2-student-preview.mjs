@@ -34,7 +34,7 @@ html=once(html,
  "locked release description");
 
 js=once(js,'  showScreen("missionScreen");',
- '  showScreen("missionScreen");\\n  window.cloudQuestShowSharedMission?.(m.id);',"same-group completed mission viewer");
+ '  showScreen("missionScreen");\n  window.cloudQuestShowSharedMission?.(m.id);',"same-group completed mission viewer");
 js=once(js,'const STORAGE_KEY = "taipeiCulturalQuestFiveReadOnlyV1";',
  'const STORAGE_KEY = "taipeiCulturalQuestPhase2CandidateV1";',"draft key");
 js=once(js,"確認代表第一組提交第三關共同成果？提交後不可自行修改，並會上傳 2 張照片。",
