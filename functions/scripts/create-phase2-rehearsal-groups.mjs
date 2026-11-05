@@ -6,7 +6,7 @@ import {resolve} from "node:path";
 import {createRequire} from "node:module";
 import {pathToFileURL} from "node:url";
 const project="taipei-cultural-adventure",activity="taipei2026rehearsal";
-const groups=["group01","group02","group03"],file=".phase2-rehearsal-private.txt";
+const groups=["group01","group02","group03"],file=".phase2-live-rules-backup/rehearsal-private.txt";
 const opts=process.argv.slice(2),isApply=opts.includes("--apply");
 if(!isApply){
  if(opts.length)throw Error("Only --apply supported");
