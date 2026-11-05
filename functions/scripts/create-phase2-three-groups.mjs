@@ -64,6 +64,14 @@ async function main(){
  const requireAdmin=createRequire(resolve("functions/package.json"));
  const {initializeApp,applicationDefault}=requireAdmin("firebase-admin/app");
  const {getFirestore,FieldValue}=requireAdmin("firebase-admin/firestore");
+ const credential=applicationDefault();
+ await credential.getAccessToken(); // Fail BEFORE generating any secret file if ADC is unavailable.
+ initializeApp({projectId:PROJECT,credential});
+ const db=getFirestore();
+ const refs=GROUP_IDS.map(groupId=>db.doc(`activities/${ACTIVITY}/groups/${groupId}`));
+ const existing=await db.getAll(...refs);
+ if(existing.some(snap=>snap.exists))
+  throw Error("At least one taipei2026 group exists: refusing to create or overwrite");
  const keys=makeGroupKeys();
  const output=await open(resolve(OUTPUT),"wx",0o600);
  try{
@@ -72,9 +80,8 @@ async function main(){
    ...keys.map(x=>`${x.groupId}\t${x.code}`)
   ].join("\n")+"\n");
  }finally{await output.close();}
- initializeApp({projectId:PROJECT,credential:applicationDefault()});
  try{
-  await applyPlan({db:getFirestore(),plan,keys,serverTimestamp:()=>FieldValue.serverTimestamp()});
+  await applyPlan({db,plan,keys,serverTimestamp:()=>FieldValue.serverTimestamp()});
  }catch(e){console.error("Not confirmed. Inspect Firestore before retry. Private keys preserved.");throw e;}
  console.log("CREATED 3 groups, 7-member limit each. Private reusable QR codes stored locally, NOT printed.");
 }
