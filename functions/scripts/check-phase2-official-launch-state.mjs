@@ -20,7 +20,7 @@ for(let i=0;i<groups.length;i++){
  const g=groups[i],s=records[i],d=s.data()||{};
  const members=await db.collection(base+g+"/members").limit(1).get();
  const missions=await db.collection(base+g+"/missions").limit(1).get();
- const correct=s.exists&&d.phase2===true&&d.maxMembers===7&&d.memberCount===0&&
+ const correct=s.exists&&d.phase2===true&&d.maxMembers===10&&d.memberCount===0&&
   /^[a-f0-9]{64}$/.test(d.joinTokenHash||"")&&members.empty&&missions.empty;
  valid=valid&&correct;
  console.log(JSON.stringify({
@@ -31,4 +31,4 @@ for(let i=0;i<groups.length;i++){
  }));
 }
 if(!valid)throw Error("OFFICIAL GROUP STATE IS NOT PRISTINE. DO NOT RELEASE QR CODES.");
-console.log("PASS: official taipei2026 has three pristine, reserved seven-seat groups. READ-ONLY.");
+console.log("PASS: official taipei2026 has three pristine, reserved ten-seat groups. READ-ONLY.");
