@@ -1,0 +1,26 @@
+// Static fast-track smoke checks. No Firebase access or deployment.
+import test from "node:test";
+import assert from "node:assert/strict";
+import {readFile} from "node:fs/promises";
+const read=path=>readFile(new URL("../"+path,import.meta.url),"utf8");
+test("Phase2 callable is isolated from legacy functions index",async()=>{
+ const legacy=await read("functions/index.js"),phase2=await read("functions/phase2-live-entry.js");
+ assert.doesNotMatch(legacy,/phase2-live-entry|submitPhase2Mission/);
+ assert.match(phase2,/export const submitPhase2Mission=onCall/);
+ assert.match(phase2,/PHASE2_ACTIVITY_ID/);
+ assert.match(phase2,/PHASE2_GROUP_IDS/);
+ assert.match(phase2,/transactionGuard/);
+});
+test("Phase2 live config uses its own codebase",async()=>{
+ const cfg=JSON.parse(await read("firebase.phase2-live-functions.json"));
+ assert.equal(cfg.functions.codebase,"phase2-live");
+ assert.equal(cfg.functions.source,".firebase-phase2-live-functions");
+});
+test("Teacher preview can select only explicitly allowed sandbox",async()=>{
+ const js=await read("teacher-dashboard.js"),html=await read("teacher-dashboard.html");
+ assert.match(js,/\["demo2026","pilot2026","phase2sandbox"\]/);
+ assert.match(html,/value="phase2sandbox"/);
+});
+test("Existing five original pilot entrypoints are still separate files",async()=>{
+ for(let n=1;n<=5;n++)assert.match(await read(`functions/pilot2026-stage${n}-entry.js`),new RegExp(`submitPilot2026Stage${n}`));
+});
