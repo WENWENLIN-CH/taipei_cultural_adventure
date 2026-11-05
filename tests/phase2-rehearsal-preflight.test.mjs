@@ -33,3 +33,12 @@ test("Rehearsal tests never provision or point at the official activity",()=>{
  assert.match(entry,/ACTIVITY="taipei2026rehearsal"/);
  assert.match(setup,/refusing overwrite|refusing to create or overwrite|refusing overwrite|refusing cloud creation/i);
 });
+
+test("QR join and auth restore cannot race the active island back to start",()=>{
+ const boot=readFileSync("phase2-student-bootstrap.js","utf8");
+ assert.match(boot,/let authFlow=Promise[.]resolve\(\)/);
+ assert.match(boot,/authFlow=authFlow[.]catch/);
+ assert.match(boot,/if\(group\)return true;/);
+ assert.match(boot,/if\(group\)\{render\(\);return;\}/);
+ assert.match(boot,/if\(!joining\)/);
+});
