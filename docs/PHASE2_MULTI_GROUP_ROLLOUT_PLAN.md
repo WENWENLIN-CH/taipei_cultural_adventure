@@ -129,3 +129,17 @@ git pull origin feature/firebase-sync
 npm run test:phase2-six-invites
 ```
 預期 6 tests、6 pass、0 fail。此測試模擬六個不同使用者 UID，但**未連線 Auth Emulator 產生真正的匿名認證 token**，也尚未驗證真實手機的登入與 localStorage 恢復。後續須另以 Auth Emulator＋瀏覽器整合測試驗證。
+
+## 第二階段 A — 第四批：真正 Firebase Auth Emulator 匿名登入（待 Cloud Shell 驗證）
+第三批六位模擬使用者邀請碼測試已回報 **6 pass／0 fail**。
+
+新增 `firebase.phase2-auth-emulator.json`（Auth localhost:9099＋Firestore localhost:8080）與 `functions/test/phase2-auth-e2e.test.mjs`。此批由 Auth Emulator 實際產生匿名 Firebase UID（不再僅模擬），讓六位學生在 `phase2sandbox` 三組逐一領取邀請碼；驗證同組 Firestore onSnapshot 即時接收、一組任務不影響他組、跨組／pilot2026 拒絕、邀請不可重用，以及同 UID 恢復讀取會員資料。
+
+```bash
+cd ~/taipei_cultural_adventure
+git pull origin feature/firebase-sync
+npm run test:phase2-auth-e2e
+```
+預期 **7 tests、7 pass、0 fail**，以實際輸出為準；**仍然不部署**。
+
+限制：本測試為 Node.js Auth SDK 搭配本地 Firebase Emulator 的整合驗證，尚非 iPhone／Android 實機；同 UID 恢復是同一 Auth 實例的驗證，不是換手機後恢復身份。也尚未包含正式活動專用 Callables 的部署與多組學生的完整前端 5/5 操作。任何 emulator port 或 SDK 錯誤先停下修復，絕不切換成正式 Firebase 專案重跑。
