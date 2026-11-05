@@ -45,3 +45,5 @@ serviceAccountKey.json
 
 .firebase-phase2-rehearsal-functions/
 .firebase-phase2-rehearsal-hosting/
+
+.firebase-phase2-official-hosting/
