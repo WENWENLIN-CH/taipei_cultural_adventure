@@ -143,3 +143,14 @@ npm run test:phase2-auth-e2e
 預期 **7 tests、7 pass、0 fail**，以實際輸出為準；**仍然不部署**。
 
 限制：本測試為 Node.js Auth SDK 搭配本地 Firebase Emulator 的整合驗證，尚非 iPhone／Android 實機；同 UID 恢復是同一 Auth 實例的驗證，不是換手機後恢復身份。也尚未包含正式活動專用 Callables 的部署與多組學生的完整前端 5/5 操作。任何 emulator port 或 SDK 錯誤先停下修復，絕不切換成正式 Firebase 專案重跑。
+
+## 第二階段 A — 第五批：正式活動後端候選安全閘門（待測試）
+使用者已回報 **真正 Firebase Auth Emulator 匿名登入及同組同步 7 pass／0 fail**。
+
+新增 `functions/phase2-authorization.js` 及 `functions/phase2-prerequisite.js`，**尚未接到任何線上或模擬器 Callable**。候選驗證：
+- 僅 `phase2sandbox` 的 group01、group02、group03，關卡 1–5；`pilot2026`／`demo2026` 不接受。
+- 需匿名身分、有效小組成員（`revoked!==true`），第 2–5 關提交前需該組前一關狀態為 `completed`。
+- 驗證是只讀的；真正儲存時仍需提交處理器再次檢查、照片驗證、交易與防重複。
+- 此安全閘門尚未整合後端 Callable、也未通過與 Firestore 提交交易間的競態檢驗；不能認定正式上線安全。
+
+待執行：`npm run test:phase2-server-gates`。預期 6 tests、6 pass、0 fail。只跑 Node.js 單元測試，不會部署或讀寫正式 Firebase。
