@@ -37,9 +37,9 @@ window.cloudQuestShowSharedMission=id=>{
 };
 window.cloudQuestMaySubmit=id=>enabled && allowed(group) && seen.size===5 && !submitting &&
  Number.isInteger(Number(id)) && Number(id)>=1 && Number(id)<=5 &&
- !completed.has(Number(id)) && (Number(id)===1||completed.has(Number(id)-1));
+ !completed.has(Number(id));
 window.cloudQuestSubmit=async(missionId,formData)=>{
- if(!window.cloudQuestMaySubmit(missionId))throw Error("目前無法提交：請確認活動已開放、上關已完成及同步已連線");
+ if(!window.cloudQuestMaySubmit(missionId))throw Error("目前無法提交：請確認活動已開放、此關未完成且同步已連線");
  submitting=true;
  try{return await submitOriginalMission({missionId,formData,onProgress:notice,submitMission:submitPhase2Mission});}
  finally{submitting=false;}
