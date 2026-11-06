@@ -20,13 +20,8 @@ const join=createPhase2JoinHandler({
 });
 const submit=createSubmissionHandler({
  db,bucket,makeError:fail,serverTimestamp:()=>FieldValue.serverTimestamp(),
- approvedLiveScope:{activityId:ACTIVITY,groups:GROUPS,missions:[1,2,3,4,5]},
- transactionGuard:async({tx,db,input,base,makeError})=>{
-  if(input.missionId===1)return;
-  const prev=await tx.get(db.doc(base+"/missions/"+(input.missionId-1)));
-  if(!prev.exists||prev.data()?.status!=="completed")
-   throw makeError("failed-precondition","請先完成前一關");
- }
+ approvedLiveScope:{activityId:ACTIVITY,groups:GROUPS,missions:[1,2,3,4,5]}
+ // Rehearsal uses the same unrestricted mission order as the official activity.
 });
 const actor=request=>({
  uid:request.auth?.uid,
