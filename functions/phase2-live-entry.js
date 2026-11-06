@@ -25,14 +25,9 @@ const handler=createSubmissionHandler({
  bucket:getStorage().bucket("taipei-cultural-adventure.firebasestorage.app"),
  serverTimestamp:()=>FieldValue.serverTimestamp(),
  makeError:(code,message)=>new HttpsError(code,message),
- approvedLiveScope:scope,
- // The immediately preceding mission is checked inside the write transaction.
- transactionGuard:async({tx,db,input,base,makeError})=>{
-  if(input.missionId===1)return;
-  const previous=await tx.get(db.doc(`${base}/missions/${input.missionId-1}`));
-  if(!previous.exists||previous.data()?.status!=="completed")
-   throw makeError("failed-precondition","請先完成上一關");
- }
+ approvedLiveScope:scope
+ // Free-order missions: each mission is independently submittable.
+ // submission-handler still checks membership, uploads, and atomic no-duplicate writes.
 });
 export const submitPhase2Mission=onCall({
  region:"asia-east1",memory:"256MiB",maxInstances:3,timeoutSeconds:60
